@@ -1,0 +1,14 @@
+{
+  "name": "quantum-hub",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "test": "cd frontend && npm test",
+    "test:watch": "cd frontend && npm run test:watch",
+    "dev": "docker-compose up -d",
+    "start": "docker-compose up -d",
+    "stop": "docker-compose down",
+    "build": "docker-compose build",
+    "lint": "cd frontend && npm run lint"
+  }
+} 
