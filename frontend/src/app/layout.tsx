@@ -54,6 +54,14 @@ export default function RootLayout({
                   </li>
                   <li>
                     <Link
+                      href="/develop"
+                      className="text-gray-600 hover:text-indigo-600 dark:text-gray-300 dark:hover:text-indigo-400"
+                    >
+                      Develop
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
                       href="/dashboard"
                       className="text-gray-600 hover:text-indigo-600 dark:text-gray-300 dark:hover:text-indigo-400"
                     >

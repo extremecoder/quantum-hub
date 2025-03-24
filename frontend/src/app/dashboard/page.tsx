@@ -13,7 +13,8 @@ import {
   PauseIcon,
   DocumentAddIcon,
   KeyIcon,
-  ChipIcon
+  ChipIcon,
+  CodeIcon
 } from '@heroicons/react/outline';
 
 // Mock data for user's quantum applications
@@ -117,6 +118,13 @@ export default function Dashboard() {
           </p>
         </div>
         <div className="flex space-x-4">
+          <Link 
+            href="/develop"
+            className="btn-secondary inline-flex items-center text-sm"
+          >
+            <CodeIcon className="h-5 w-5 mr-2" />
+            Develop
+          </Link>
           <Link 
             href="/dashboard/publish-circuit"
             className="btn-secondary inline-flex items-center text-sm"
