@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { SearchIcon, ChipIcon, CloudIcon, LightningBoltIcon, CubeIcon } from '@heroicons/react/outline';
+import { ImageProps } from 'next/image';
 
 // Mock data for featured quantum applications
 const featuredApps = [
@@ -57,6 +58,35 @@ const categories = [
   { id: 'ml', name: 'Machine Learning', count: 18, icon: CloudIcon },
   { id: 'utilities', name: 'Utilities', count: 35, icon: LightningBoltIcon },
 ];
+
+// Custom Image component with fallback
+interface ImageWithFallbackProps extends Omit<ImageProps, 'src'> {
+  src: string;
+  alt: string;
+}
+
+const ImageWithFallback = ({ src, alt, ...props }: ImageWithFallbackProps) => {
+  const [error, setError] = useState(false);
+  
+  return (
+    <div className="relative h-40 w-full overflow-hidden rounded-t-lg bg-gray-100">
+      {!error ? (
+        <Image
+          src={src}
+          alt={alt}
+          fill
+          className="object-cover transition-transform duration-200 group-hover:scale-105"
+          onError={() => setError(true)}
+          {...props}
+        />
+      ) : (
+        <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-500 p-4 text-white">
+          <span className="text-lg font-medium">{alt}</span>
+        </div>
+      )}
+    </div>
+  );
+};
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -160,47 +190,39 @@ export default function Home() {
             {featuredApps.map((app, index) => (
               <motion.div
                 key={app.id}
-                className="overflow-hidden rounded-xl bg-white shadow-md transition-all hover:shadow-lg dark:bg-gray-800"
+                className="group overflow-hidden rounded-lg bg-white shadow-md transition-all hover:shadow-lg dark:bg-gray-800"
+                whileHover={{ y: -5 }}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.1 * index }}
+                transition={{ duration: 0.3 }}
               >
-                <div className="relative h-48 w-full bg-gray-200 dark:bg-gray-700">
-                  <div className="h-full w-full bg-gradient-to-br from-indigo-500 to-purple-600 opacity-70"></div>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-2xl font-bold text-white">Q</span>
-                  </div>
-                </div>
-                <div className="p-6">
-                  <span className="inline-block rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200">
-                    {app.category}
-                  </span>
-                  <h3 className="mt-3 mb-2 text-xl font-bold dark:text-white">
-                    {app.title}
-                  </h3>
-                  <p className="mb-4 text-sm text-gray-600 dark:text-gray-300">
-                    {app.description}
-                  </p>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-500 dark:text-gray-400">
-                      {app.qubits} qubits
+                <Link href={`/app/${app.id}`} className="block">
+                  <ImageWithFallback src={app.imageUrl} alt={app.title} />
+                  <div className="p-4">
+                    <span className="inline-block rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200">
+                      {app.category}
                     </span>
-                    <span className="text-gray-500 dark:text-gray-400">
-                      {app.runs.toLocaleString()} runs
-                    </span>
+                    <h3 className="mt-3 mb-2 text-xl font-bold dark:text-white">
+                      {app.title}
+                    </h3>
+                    <p className="mb-4 text-sm text-gray-600 dark:text-gray-300">
+                      {app.description}
+                    </p>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-500 dark:text-gray-400">
+                        {app.qubits} qubits
+                      </span>
+                      <span className="text-gray-500 dark:text-gray-400">
+                        {app.runs.toLocaleString()} runs
+                      </span>
+                    </div>
+                    <div className="mt-6 flex items-center justify-between">
+                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                        By {app.author}
+                      </span>
+                    </div>
                   </div>
-                  <div className="mt-6 flex items-center justify-between">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">
-                      By {app.author}
-                    </span>
-                    <Link
-                      href={`/app/${app.id}`}
-                      className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
-                    >
-                      Run App
-                    </Link>
-                  </div>
-                </div>
+                </Link>
               </motion.div>
             ))}
           </div>

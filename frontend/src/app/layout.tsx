@@ -1,6 +1,7 @@
 import './globals.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
+import Link from 'next/link';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -21,43 +22,43 @@ export default function RootLayout({
           <div className="container mx-auto px-4 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center">
-                <span className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
+                <Link href="/" className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
                   Quantum Hub
-                </span>
+                </Link>
               </div>
               <nav className="hidden md:block">
                 <ul className="flex space-x-8">
                   <li>
-                    <a
+                    <Link
                       href="/marketplace"
                       className="text-gray-600 hover:text-indigo-600 dark:text-gray-300 dark:hover:text-indigo-400"
                     >
                       Marketplace
-                    </a>
+                    </Link>
                   </li>
                   <li>
-                    <a
+                    <Link
                       href="/hardware"
                       className="text-gray-600 hover:text-indigo-600 dark:text-gray-300 dark:hover:text-indigo-400"
                     >
                       Hardware
-                    </a>
+                    </Link>
                   </li>
                   <li>
-                    <a
+                    <Link
                       href="/dashboard"
                       className="text-gray-600 hover:text-indigo-600 dark:text-gray-300 dark:hover:text-indigo-400"
                     >
                       Dashboard
-                    </a>
+                    </Link>
                   </li>
                   <li>
-                    <a
-                      href="/docs"
+                    <Link
+                      href="/documentation"
                       className="text-gray-600 hover:text-indigo-600 dark:text-gray-300 dark:hover:text-indigo-400"
                     >
                       Documentation
-                    </a>
+                    </Link>
                   </li>
                 </ul>
               </nav>
@@ -87,24 +88,24 @@ export default function RootLayout({
               <div>
                 <h3 className="mb-4 text-lg font-semibold dark:text-white">Resources</h3>
                 <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
-                  <li><a href="/docs" className="hover:text-indigo-600 dark:hover:text-indigo-400">Documentation</a></li>
-                  <li><a href="/tutorials" className="hover:text-indigo-600 dark:hover:text-indigo-400">Tutorials</a></li>
-                  <li><a href="/blog" className="hover:text-indigo-600 dark:hover:text-indigo-400">Blog</a></li>
+                  <li><Link href="/documentation" className="hover:text-indigo-600 dark:hover:text-indigo-400">Documentation</Link></li>
+                  <li><Link href="/tutorials" className="hover:text-indigo-600 dark:hover:text-indigo-400">Tutorials</Link></li>
+                  <li><Link href="/blog" className="hover:text-indigo-600 dark:hover:text-indigo-400">Blog</Link></li>
                 </ul>
               </div>
               <div>
                 <h3 className="mb-4 text-lg font-semibold dark:text-white">Company</h3>
                 <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
-                  <li><a href="/about" className="hover:text-indigo-600 dark:hover:text-indigo-400">About</a></li>
-                  <li><a href="/careers" className="hover:text-indigo-600 dark:hover:text-indigo-400">Careers</a></li>
-                  <li><a href="/contact" className="hover:text-indigo-600 dark:hover:text-indigo-400">Contact</a></li>
+                  <li><Link href="/about" className="hover:text-indigo-600 dark:hover:text-indigo-400">About</Link></li>
+                  <li><Link href="/careers" className="hover:text-indigo-600 dark:hover:text-indigo-400">Careers</Link></li>
+                  <li><Link href="/contact" className="hover:text-indigo-600 dark:hover:text-indigo-400">Contact</Link></li>
                 </ul>
               </div>
               <div>
                 <h3 className="mb-4 text-lg font-semibold dark:text-white">Legal</h3>
                 <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
-                  <li><a href="/terms" className="hover:text-indigo-600 dark:hover:text-indigo-400">Terms of Service</a></li>
-                  <li><a href="/privacy" className="hover:text-indigo-600 dark:hover:text-indigo-400">Privacy Policy</a></li>
+                  <li><Link href="/terms" className="hover:text-indigo-600 dark:hover:text-indigo-400">Terms of Service</Link></li>
+                  <li><Link href="/privacy" className="hover:text-indigo-600 dark:hover:text-indigo-400">Privacy Policy</Link></li>
                 </ul>
               </div>
             </div>
