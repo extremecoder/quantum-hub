@@ -10,7 +10,10 @@ import {
   ServerIcon, 
   BadgeCheckIcon,
   ExclamationCircleIcon, 
-  PauseIcon
+  PauseIcon,
+  DocumentAddIcon,
+  KeyIcon,
+  ChipIcon
 } from '@heroicons/react/outline';
 
 // Mock data for user's quantum applications
@@ -91,346 +94,505 @@ const formatDate = (dateString: string) => {
   });
 };
 
+// Tabs enum for dashboard
+enum DashboardTab {
+  MyApplications = 'My Applications',
+  HardwareUsage = 'Hardware Usage',
+  Analytics = 'Analytics',
+  APIKeys = 'API Keys',
+  Settings = 'Settings',
+  MyPublishedCircuits = 'My Published Circuits',
+}
+
 export default function Dashboard() {
-  const [activeTab, setActiveTab] = useState('apps');
+  const [activeTab, setActiveTab] = useState<DashboardTab>(DashboardTab.MyApplications);
 
   return (
-    <div className="container mx-auto px-4 py-12">
-      <div className="mb-10 flex flex-col items-start justify-between md:flex-row md:items-center">
+    <div className="container mx-auto px-4 py-8">
+      <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-3xl font-bold dark:text-white">Dashboard</h1>
-          <p className="mt-2 text-gray-600 dark:text-gray-300">
+          <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
+          <p className="text-gray-600 dark:text-gray-400">
             Manage your quantum applications and monitor resource usage
           </p>
         </div>
-        <div className="mt-4 md:mt-0">
-          <button className="btn-primary">
-            New Application
-          </button>
+        <div className="flex space-x-4">
+          <Link 
+            href="/dashboard/publish-circuit"
+            className="btn-secondary inline-flex items-center text-sm"
+          >
+            <CollectionIcon className="h-5 w-5 mr-2" />
+            Publish to Registry
+          </Link>
+          <Link 
+            href="/dashboard/publish-api"
+            className="btn-primary inline-flex items-center text-sm"
+          >
+            <DocumentAddIcon className="h-5 w-5 mr-2" />
+            Publish API
+          </Link>
         </div>
       </div>
-
-      {/* Dashboard Tabs */}
-      <div className="mb-8 border-b border-gray-200 dark:border-gray-700">
-        <nav className="-mb-px flex space-x-8">
+      
+      {/* Dashboard tabs */}
+      <div className="mb-6 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex overflow-x-auto">
           <button
-            className={`flex items-center whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium ${
-              activeTab === 'apps'
-                ? 'border-indigo-500 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400'
-                : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400'
+            className={`py-4 px-6 -mb-px border-b-2 font-medium text-sm whitespace-nowrap ${
+              activeTab === DashboardTab.MyApplications
+                ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400 dark:border-indigo-400'
+                : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
             }`}
-            onClick={() => setActiveTab('apps')}
+            onClick={() => setActiveTab(DashboardTab.MyApplications)}
           >
-            <CollectionIcon className="mr-2 h-5 w-5" />
+            <CollectionIcon className="h-5 w-5 mr-2 inline" />
             My Applications
           </button>
           <button
-            className={`flex items-center whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium ${
-              activeTab === 'hardware'
-                ? 'border-indigo-500 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400'
-                : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400'
+            className={`py-4 px-6 -mb-px border-b-2 font-medium text-sm whitespace-nowrap ${
+              activeTab === DashboardTab.MyPublishedCircuits
+                ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400 dark:border-indigo-400'
+                : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
             }`}
-            onClick={() => setActiveTab('hardware')}
+            onClick={() => setActiveTab(DashboardTab.MyPublishedCircuits)}
           >
-            <ServerIcon className="mr-2 h-5 w-5" />
+            <ChipIcon className="h-5 w-5 mr-2 inline" />
+            My Published Circuits
+          </button>
+          <button
+            className={`py-4 px-6 -mb-px border-b-2 font-medium text-sm whitespace-nowrap ${
+              activeTab === DashboardTab.HardwareUsage
+                ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400 dark:border-indigo-400'
+                : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+            }`}
+            onClick={() => setActiveTab(DashboardTab.HardwareUsage)}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+            </svg>
             Hardware Usage
           </button>
           <button
-            className={`flex items-center whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium ${
-              activeTab === 'analytics'
-                ? 'border-indigo-500 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400'
-                : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400'
+            className={`py-4 px-6 -mb-px border-b-2 font-medium text-sm whitespace-nowrap ${
+              activeTab === DashboardTab.Analytics
+                ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400 dark:border-indigo-400'
+                : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
             }`}
-            onClick={() => setActiveTab('analytics')}
+            onClick={() => setActiveTab(DashboardTab.Analytics)}
           >
-            <ChartBarIcon className="mr-2 h-5 w-5" />
+            <ChartBarIcon className="h-5 w-5 mr-2 inline" />
             Analytics
           </button>
           <button
-            className={`flex items-center whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium ${
-              activeTab === 'settings'
-                ? 'border-indigo-500 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400'
-                : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400'
+            className={`py-4 px-6 -mb-px border-b-2 font-medium text-sm whitespace-nowrap ${
+              activeTab === DashboardTab.APIKeys
+                ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400 dark:border-indigo-400'
+                : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
             }`}
-            onClick={() => setActiveTab('settings')}
+            onClick={() => setActiveTab(DashboardTab.APIKeys)}
           >
-            <CogIcon className="mr-2 h-5 w-5" />
+            <KeyIcon className="h-5 w-5 mr-2 inline" />
+            API Keys
+          </button>
+          <button
+            className={`py-4 px-6 -mb-px border-b-2 font-medium text-sm whitespace-nowrap ${
+              activeTab === DashboardTab.Settings
+                ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400 dark:border-indigo-400'
+                : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+            }`}
+            onClick={() => setActiveTab(DashboardTab.Settings)}
+          >
+            <CogIcon className="h-5 w-5 mr-2 inline" />
             Settings
           </button>
-        </nav>
+        </div>
       </div>
-
-      {/* Applications Tab Content */}
-      {activeTab === 'apps' && (
+      
+      {/* Applications Section */}
+      {activeTab === DashboardTab.MyApplications && (
         <div>
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4">
-            {userApps.map((app) => (
-              <div key={app.id} className="card">
-                <div className="flex items-start justify-between">
-                  <h3 className="text-lg font-semibold dark:text-white">{app.name}</h3>
-                  <div>{statusIcons[app.status as keyof typeof statusIcons]}</div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+              <div className="flex justify-between items-start mb-4">
+                <div className="p-3 bg-green-100 rounded-lg dark:bg-green-900">
+                  <CollectionIcon className="h-6 w-6 text-green-600 dark:text-green-400" />
                 </div>
-                <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
-                  {app.description}
-                </p>
-                <div className="mt-4 flex items-center text-xs text-gray-500 dark:text-gray-400">
-                  <ClockIcon className="mr-1 h-4 w-4" />
-                  Last run: {formatDate(app.lastRun)}
-                </div>
-                <div className="mt-4 flex justify-between">
-                  <Link
-                    href={`/app/${app.id}`}
-                    className="text-sm font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400"
-                  >
-                    View Details
-                  </Link>
-                  <button className="rounded bg-indigo-100 px-3 py-1 text-xs font-medium text-indigo-800 hover:bg-indigo-200 dark:bg-indigo-900 dark:text-indigo-200">
-                    Run
-                  </button>
-                </div>
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                  +12% this month
+                </span>
               </div>
-            ))}
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white">12</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Total Applications</p>
+            </div>
+            
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+              <div className="flex justify-between items-start mb-4">
+                <div className="p-3 bg-blue-100 rounded-lg dark:bg-blue-900">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                </div>
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                  +41% this month
+                </span>
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white">1,523</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400">API Requests Today</p>
+            </div>
+            
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+              <div className="flex justify-between items-start mb-4">
+                <div className="p-3 bg-purple-100 rounded-lg dark:bg-purple-900">
+                  <ChipIcon className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                </div>
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
+                  +5% this month
+                </span>
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white">28</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Average Qubits Used</p>
+            </div>
+            
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+              <div className="flex justify-between items-start mb-4">
+                <div className="p-3 bg-yellow-100 rounded-lg dark:bg-yellow-900">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-yellow-600 dark:text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                </div>
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
+                  +25% this month
+                </span>
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white">$840.32</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Monthly Revenue</p>
+            </div>
           </div>
           
-          <div className="mt-10">
-            <h2 className="mb-6 text-xl font-semibold dark:text-white">Recent Results</h2>
+          <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Recent Results</h2>
+          
+          <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm rounded-xl border border-gray-200 dark:border-gray-700 mb-8">
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                <thead className="bg-gray-50 dark:bg-gray-800">
+                <thead className="bg-gray-50 dark:bg-gray-900">
                   <tr>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                      Application
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                      Date
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                      Status
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                      Runtime
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                      Qubits
-                    </th>
-                    <th scope="col" className="relative px-6 py-3">
-                      <span className="sr-only">Actions</span>
-                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">Application</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">Date</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">Status</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">Runtime</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">Qubits</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-900">
-                  {userApps.flatMap((app) => 
-                    app.results.slice(0, 1).map((result, index) => (
-                      <tr key={`${app.id}-${index}`}>
-                        <td className="whitespace-nowrap px-6 py-4">
-                          <div className="flex items-center">
-                            <div className="ml-4">
-                              <div className="text-sm font-medium text-gray-900 dark:text-white">
-                                {app.name}
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
-                          {formatDate(result.date)}
-                        </td>
-                        <td className="whitespace-nowrap px-6 py-4 text-sm">
-                          {result.success === null ? (
-                            <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                              Running
-                            </span>
-                          ) : result.success ? (
-                            <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900 dark:text-green-200">
-                              Successful
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800 dark:bg-red-900 dark:text-red-200">
-                              Failed
-                            </span>
-                          )}
-                        </td>
-                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
-                          {result.runtime > 0 ? `${result.runtime} ms` : '-'}
-                        </td>
-                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
-                          {result.qubits}
-                        </td>
-                        <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
-                          <Link href={`/results/${app.id}/${index}`} className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400">
-                            View
-                          </Link>
-                        </td>
-                      </tr>
-                    ))
-                  )}
+                <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
+                  <tr>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900 dark:text-white">Quantum Search Algorithm</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-500 dark:text-gray-400">Jun 15, 2023, 04:00 PM</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                        Successful
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                      124 ms
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                      7
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <Link href="/dashboard/result/1" className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300">View</Link>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900 dark:text-white">VQE Molecular Simulation</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-500 dark:text-gray-400">Jun 14, 2023, 02:15 PM</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                        Running
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                      -
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                      10
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <Link href="/dashboard/result/2" className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300">View</Link>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900 dark:text-white">Quantum Fourier Transform</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-500 dark:text-gray-400">Jun 10, 2023, 08:50 PM</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+                        Failed
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                      -
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                      8
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <Link href="/dashboard/result/3" className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300">View</Link>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900 dark:text-white">QAOA Optimization</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-500 dark:text-gray-400">Jun 8, 2023, 03:45 PM</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                        Successful
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                      267 ms
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                      12
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <Link href="/dashboard/result/4" className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300">View</Link>
+                    </td>
+                  </tr>
                 </tbody>
               </table>
             </div>
           </div>
         </div>
       )}
-
-      {/* Hardware Usage Tab Content */}
-      {activeTab === 'hardware' && (
+      
+      {/* My Published Circuits Section */}
+      {activeTab === DashboardTab.MyPublishedCircuits && (
         <div>
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-            {hardwareUsage.map((hw, index) => (
-              <div key={index} className="card">
-                <h3 className="mb-4 text-lg font-semibold dark:text-white">{hw.name}</h3>
-                <div className="mb-2 flex justify-between text-sm">
-                  <span className="text-gray-600 dark:text-gray-300">Usage</span>
-                  <span className="font-medium dark:text-white">
-                    {hw.usage}/{hw.limit} {hw.unit}
-                  </span>
-                </div>
-                <div className="h-4 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
-                  <div 
-                    className="h-4 rounded-full bg-indigo-600" 
-                    style={{ width: `${(hw.usage / hw.limit) * 100}%` }}
-                  ></div>
-                </div>
-                <div className="mt-4 text-right">
-                  <button className="text-sm font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400">
-                    View Details
-                  </button>
-                </div>
-              </div>
-            ))}
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">My Published Circuits</h2>
+            <Link 
+              href="/dashboard/publish-circuit"
+              className="btn-primary inline-flex items-center text-sm"
+            >
+              <DocumentAddIcon className="h-5 w-5 mr-2" />
+              Publish New Circuit
+            </Link>
           </div>
           
-          <div className="mt-10">
-            <h2 className="mb-6 text-xl font-semibold dark:text-white">Available Quantum Hardware</h2>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-              <div className="card">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold dark:text-white">IBM Quantum System One</h3>
-                  <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900 dark:text-green-200">
-                    Available
-                  </span>
-                </div>
-                <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
-                  127-qubit quantum processor with low error rates
-                </p>
-                <div className="mt-4 grid grid-cols-2 gap-4 text-sm text-gray-600 dark:text-gray-300">
-                  <div>
-                    <p className="font-medium">Qubits</p>
-                    <p>127</p>
-                  </div>
-                  <div>
-                    <p className="font-medium">Quantum Volume</p>
-                    <p>128</p>
-                  </div>
-                  <div>
-                    <p className="font-medium">Gate Error</p>
-                    <p>0.1%</p>
-                  </div>
-                  <div>
-                    <p className="font-medium">Readout Error</p>
-                    <p>1.5%</p>
-                  </div>
-                </div>
-                <div className="mt-4 flex justify-end">
-                  <button className="btn-primary">
-                    Reserve Time
-                  </button>
-                </div>
-              </div>
-              
-              <div className="card">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold dark:text-white">Azure Quantum IonQ</h3>
-                  <span className="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
-                    Limited
-                  </span>
-                </div>
-                <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
-                  32-qubit trapped-ion quantum computer with high fidelity
-                </p>
-                <div className="mt-4 grid grid-cols-2 gap-4 text-sm text-gray-600 dark:text-gray-300">
-                  <div>
-                    <p className="font-medium">Qubits</p>
-                    <p>32</p>
-                  </div>
-                  <div>
-                    <p className="font-medium">Quantum Volume</p>
-                    <p>4,000,000</p>
-                  </div>
-                  <div>
-                    <p className="font-medium">Gate Error</p>
-                    <p>0.05%</p>
-                  </div>
-                  <div>
-                    <p className="font-medium">Readout Error</p>
-                    <p>0.5%</p>
-                  </div>
-                </div>
-                <div className="mt-4 flex justify-end">
-                  <button className="btn-primary">
-                    Reserve Time
-                  </button>
-                </div>
-              </div>
-              
-              <div className="card">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold dark:text-white">AWS Braket Rigetti</h3>
-                  <span className="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800 dark:bg-red-900 dark:text-red-200">
-                    Scheduled Maintenance
-                  </span>
-                </div>
-                <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
-                  80-qubit superconducting quantum processor
-                </p>
-                <div className="mt-4 grid grid-cols-2 gap-4 text-sm text-gray-600 dark:text-gray-300">
-                  <div>
-                    <p className="font-medium">Qubits</p>
-                    <p>80</p>
-                  </div>
-                  <div>
-                    <p className="font-medium">Quantum Volume</p>
-                    <p>64</p>
-                  </div>
-                  <div>
-                    <p className="font-medium">Gate Error</p>
-                    <p>0.15%</p>
-                  </div>
-                  <div>
-                    <p className="font-medium">Readout Error</p>
-                    <p>2.5%</p>
-                  </div>
-                </div>
-                <div className="mt-4 flex justify-end">
-                  <button className="btn-primary" disabled>
-                    Available June 23
-                  </button>
-                </div>
-              </div>
+          <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm rounded-xl border border-gray-200 dark:border-gray-700 mb-8">
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead className="bg-gray-50 dark:bg-gray-900">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">Circuit Name</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">Version</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">Published Date</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">Downloads</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">Status</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
+                  <tr>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900 dark:text-white">Advanced Quantum Fourier Transform</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-500 dark:text-gray-400">v1.2.0</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-500 dark:text-gray-400">Jan 15, 2023</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                      1,245
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                        Published
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <Link href="/dashboard/circuits/1" className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 mr-4">View</Link>
+                      <Link href="/dashboard/circuits/1/edit" className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 mr-4">Update</Link>
+                      <Link href="/dashboard/circuits/1/publish-api" className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300">Publish as API</Link>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900 dark:text-white">Optimized Grover's Algorithm</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-500 dark:text-gray-400">v2.1.3</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-500 dark:text-gray-400">Feb 22, 2023</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                      987
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                        Published
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <Link href="/dashboard/circuits/2" className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 mr-4">View</Link>
+                      <Link href="/dashboard/circuits/2/edit" className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 mr-4">Update</Link>
+                      <Link href="/dashboard/circuits/2/publish-api" className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300">Publish as API</Link>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
       )}
-
-      {/* Analytics Tab Content (Placeholder) */}
-      {activeTab === 'analytics' && (
-        <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-800">
-          <h3 className="mb-4 text-xl font-semibold dark:text-white">
-            Quantum Application Analytics
-          </h3>
-          <p className="text-gray-600 dark:text-gray-300">
-            Analytics dashboard is under development. Check back soon for detailed insights into your quantum applications' performance.
-          </p>
-        </div>
-      )}
-
-      {/* Settings Tab Content (Placeholder) */}
-      {activeTab === 'settings' && (
-        <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-800">
-          <h3 className="mb-4 text-xl font-semibold dark:text-white">
-            Account Settings
-          </h3>
-          <p className="text-gray-600 dark:text-gray-300">
-            Settings panel is under development. Future versions will allow you to configure your quantum computing resources, API keys, and notification preferences.
-          </p>
+      
+      {/* API Keys Section */}
+      {activeTab === DashboardTab.APIKeys && (
+        <div>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">API Keys</h2>
+            <button className="btn-primary inline-flex items-center text-sm">
+              <KeyIcon className="h-5 w-5 mr-2" />
+              Generate New Key
+            </button>
+          </div>
+          
+          <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm rounded-xl border border-gray-200 dark:border-gray-700 mb-8">
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead className="bg-gray-50 dark:bg-gray-900">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">Key Name</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">Key</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">Created</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">Expires</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">Status</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
+                  <tr>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900 dark:text-white">Production Key</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-mono bg-gray-100 dark:bg-gray-900 px-2 py-1 rounded">qh_pk_*************cRtG</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-500 dark:text-gray-400">Jan 15, 2023</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                      Never
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                        Active
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <button className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 mr-3">Copy</button>
+                      <button className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">Revoke</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900 dark:text-white">Development Key</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-mono bg-gray-100 dark:bg-gray-900 px-2 py-1 rounded">qh_dk_*************tHj5</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-500 dark:text-gray-400">Feb 22, 2023</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                      Feb 22, 2024
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                        Active
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <button className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 mr-3">Copy</button>
+                      <button className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">Revoke</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900 dark:text-white">Trial Key</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-mono bg-gray-100 dark:bg-gray-900 px-2 py-1 rounded">qh_tk_*************zP4s</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-500 dark:text-gray-400">Mar 10, 2023</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                      Apr 10, 2023
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+                        Expired
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <button className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 mr-3">Copy</button>
+                      <button className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">Revoke</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <h3 className="text-lg font-bold mb-4 text-gray-900 dark:text-white">API Usage Limits</h3>
+            
+            <div className="space-y-4">
+              <div>
+                <div className="flex justify-between mb-1">
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Requests (25,421/50,000)</span>
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">50.8%</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                  <div className="bg-indigo-600 h-2.5 rounded-full dark:bg-indigo-500" style={{ width: '50.8%' }}></div>
+                </div>
+              </div>
+              
+              <div>
+                <div className="flex justify-between mb-1">
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Compute Time (28.5/100 hours)</span>
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">28.5%</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                  <div className="bg-indigo-600 h-2.5 rounded-full dark:bg-indigo-500" style={{ width: '28.5%' }}></div>
+                </div>
+              </div>
+              
+              <div className="text-right">
+                <Link href="/billing" className="text-indigo-600 hover:text-indigo-900 text-sm font-medium dark:text-indigo-400 dark:hover:text-indigo-300">
+                  Upgrade Plan →
+                </Link>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

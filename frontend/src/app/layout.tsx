@@ -38,6 +38,14 @@ export default function RootLayout({
                   </li>
                   <li>
                     <Link
+                      href="/registry"
+                      className="text-gray-600 hover:text-indigo-600 dark:text-gray-300 dark:hover:text-indigo-400"
+                    >
+                      Registry
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
                       href="/hardware"
                       className="text-gray-600 hover:text-indigo-600 dark:text-gray-300 dark:hover:text-indigo-400"
                     >
