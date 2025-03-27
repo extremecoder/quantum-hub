@@ -1,118 +1,15 @@
 version: '3.8'
 
 services:
-  # Frontend service
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    ports:
-      - "3000:3000"
-    depends_on:
-      - api-gateway
-    environment:
-      - NODE_ENV=production
-      - NEXT_PUBLIC_API_URL=http://api-gateway:8000
-    networks:
-      - quantum-net
-    healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # API Gateway
-  api-gateway:
-    build:
-      context: ./services/api-gateway
-      dockerfile: docker/Dockerfile
-    ports:
-      - "8000:8000"
-    depends_on:
-      - circuit-service
-      - execution-service
-      - user-service
-    environment:
-      - SERVICE_CIRCUIT_URL=http://circuit-service:8001
-      - SERVICE_EXECUTION_URL=http://execution-service:8002
-      - SERVICE_USER_URL=http://user-service:8003
-      - PORT=8000
-      - LOG_LEVEL=INFO
-    networks:
-      - quantum-net
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # Circuit Service
-  circuit-service:
-    build:
-      context: ./services/circuit-service
-      dockerfile: docker/Dockerfile
-    ports:
-      - "8001:8001"
-    environment:
-      - PORT=8001
-      - LOG_LEVEL=INFO
-    networks:
-      - quantum-net
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # Execution Service
-  execution-service:
-    build:
-      context: ./services/execution-service
-      dockerfile: docker/Dockerfile
-    ports:
-      - "8002:8002"
-    environment:
-      - PORT=8002
-      - LOG_LEVEL=INFO
-      - SERVICE_CIRCUIT_URL=http://circuit-service:8001
-    networks:
-      - quantum-net
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # User Service
-  user-service:
-    build:
-      context: ./services/user-service
-      dockerfile: docker/Dockerfile
-    ports:
-      - "8003:8003"
-    environment:
-      - PORT=8003
-      - LOG_LEVEL=INFO
-      - JWT_SECRET=quantum_hub_dev_secret  # Change in production
-    networks:
-      - quantum-net
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8003/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # Database (MongoDB)
-  # In a production environment, consider using a managed database service
   mongodb:
-    image: mongo:6.0
+    image: mongo:latest
     ports:
       - "27017:27017"
     volumes:
-      - mongo-data:/data/db
+      - mongodb_data:/data/db
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=quantumhub
-      - MONGO_INITDB_ROOT_PASSWORD=quantumhub_pass  # Change in production
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password123
     networks:
       - quantum-net
     healthcheck:
@@ -121,17 +18,110 @@ services:
       timeout: 10s
       retries: 3
 
-  # Redis for caching and session management
-  redis:
-    image: redis:7.0-alpine
+  auth_service:
+    build:
+      context: .
+      dockerfile: services/auth_service/Dockerfile
     ports:
-      - "6379:6379"
-    volumes:
-      - redis-data:/data
+      - "8001:8000"
+    environment:
+      - MONGODB_URL=mongodb://admin:password123@mongodb:27017
+      - JWT_SECRET_KEY=your-secret-key
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
+    working_dir: /app/services/auth_service
+    depends_on:
+      - mongodb
     networks:
       - quantum-net
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  project_service:
+    build:
+      context: .
+      dockerfile: services/project_service/Dockerfile
+    ports:
+      - "8002:8000"
+    environment:
+      - MONGODB_URL=mongodb://admin:password123@mongodb:27017
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
+    working_dir: /app/services/project_service
+    depends_on:
+      - mongodb
+    networks:
+      - quantum-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  registry_service:
+    build:
+      context: .
+      dockerfile: services/registry_service/Dockerfile
+    ports:
+      - "8003:8000"
+    environment:
+      - MONGODB_URL=mongodb://admin:password123@mongodb:27017
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
+    working_dir: /app/services/registry_service
+    depends_on:
+      - mongodb
+    networks:
+      - quantum-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  marketplace_service:
+    build:
+      context: .
+      dockerfile: services/marketplace_service/Dockerfile
+    ports:
+      - "8004:8000"
+    environment:
+      - MONGODB_URL=mongodb://admin:password123@mongodb:27017
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
+    working_dir: /app/services/marketplace_service
+    depends_on:
+      - mongodb
+    networks:
+      - quantum-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  api_gateway:
+    build:
+      context: .
+      dockerfile: services/api_gateway/Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - AUTH_SERVICE_URL=http://auth_service:8000
+      - PROJECT_SERVICE_URL=http://project_service:8000
+      - REGISTRY_SERVICE_URL=http://registry_service:8000
+      - MARKETPLACE_SERVICE_URL=http://marketplace_service:8000
+      - JWT_SECRET_KEY=your-secret-key
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
+    working_dir: /app/services/api_gateway
+    depends_on:
+      - auth_service
+      - project_service
+      - registry_service
+      - marketplace_service
+    networks:
+      - quantum-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -141,5 +131,4 @@ networks:
     driver: bridge
 
 volumes:
-  mongo-data:
-  redis-data: 
+  mongodb_data: 
