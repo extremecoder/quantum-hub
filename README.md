@@ -187,3 +187,4 @@ API documentation is automatically generated using Swagger/OpenAPI:
 - [Azure Quantum](https://azure.microsoft.com/en-us/services/quantum/)
 - [Qiskit](https://qiskit.org/)
 - [Cirq](https://quantumai.google/cirq)
+# Project reorganization completed
