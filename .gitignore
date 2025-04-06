@@ -37,6 +37,7 @@ venv.bak/
 .env.development.local
 .env.test.local
 .env.production.local
+quantum-hub-env/
 
 # IDE files
 .idea/
@@ -45,6 +46,7 @@ venv.bak/
 *.swo
 *.sublime-project
 *.sublime-workspace
+# .windsurfrules
 
 # OS specific files
 .DS_Store
@@ -67,6 +69,17 @@ public/workbox-*.js
 public/sw.js
 .vercel/
 
+# Next.js app directories - comment these out if you want to track them
+# frontend/src/app/api/
+# frontend/src/app/auth/
+# frontend/src/app/components/
+# frontend/src/app/providers/
+# frontend/src/app/session-test/
+# frontend/src/app/settings/
+# frontend/src/types/
+# frontend/.env.example
+# frontend/next.config.js
+
 # Backend logs
 logs/
 *.log
@@ -82,3 +95,15 @@ docker-compose.override.yml
 # Quantum Hub specific
 .quantum-cache/
 quantum-results/
+# images/
+
+# Test files
+# test_*.py
+# *_test.py
+# services/*/tests/
+# frontend/cypress/
+
+# Temporary project files
+# Uncomment if you don't want to track these
+# PLANNING.md
+# TASK.md
