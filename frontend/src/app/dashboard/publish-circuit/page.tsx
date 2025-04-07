@@ -52,7 +52,7 @@ export default function PublishCircuit() {
     if (e.target.files && e.target.files.length > 0) {
       setFormData(prev => ({
         ...prev,
-        additionalFiles: [...prev.additionalFiles, ...Array.from(e.target.files)]
+        additionalFiles: [...prev.additionalFiles, ...Array.from(e.target.files || [])]
       }));
     }
   };

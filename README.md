@@ -4,90 +4,88 @@
 
 ## Overview
 
-Quantum Hub is a comprehensive platform for quantum application development, deployment, and execution. It serves as a centralized marketplace and management system for quantum applications, allowing users to discover, run, and share quantum algorithms on various quantum hardware backends.
+Quantum Hub is a comprehensive platform for quantum application development, distribution, and execution. It serves as a centralized ecosystem where developers can build, publish, and monetize quantum applications, while consumers can discover, subscribe to, and execute quantum algorithms on various quantum hardware platforms.
 
 ### Key Features
 
-- **Quantum Application Marketplace**: Discover, share, and run quantum applications
-- **Multi-Provider Support**: Connect to IBM Quantum, AWS Braket, Azure Quantum, and more
-- **Circuit Design & Visualization**: Create and visualize quantum circuits
-- **Job Execution & Monitoring**: Run quantum jobs and monitor execution status
-- **Hardware Selection**: Choose from various quantum processors
-- **Results Analysis**: Visualize and analyze quantum execution results
+- **Quantum Application Development**: Build quantum applications with embedded IDE support
+- **Registry**: Discover and download open-source quantum applications
+- **Marketplace**: Publish, monetize, and subscribe to commercial quantum applications
+- **Multi-Provider Support**: Connect to IBM Quantum, AWS Braket, Azure Quantum, Google Quantum AI, and more
+- **Job Execution & Monitoring**: Submit quantum jobs and track execution status
+- **Hardware Selection**: Choose from various quantum processors across multiple providers
+- **Analytics & Insights**: Monitor performance metrics, usage statistics, and revenue
 
 ## Architecture
 
-The Quantum Hub is built on a modern microservices architecture with a clear separation between UI and backend services. All components are containerized for deployment in Kubernetes.
+The Quantum Hub is built on a modern microservices architecture with a clear separation of concerns. Each service is responsible for a specific domain and communicates via REST APIs.
 
 ### Tech Stack
 
 - **Frontend**: Next.js/React with TypeScript, TailwindCSS
-- **Backend Services**: FastAPI (Python)
-- **Database**: MongoDB for persistence
-- **Caching**: Redis for caching and session management
-- **Containerization**: Docker/Kubernetes
-- **API Gateway**: FastAPI-based API gateway
-- **Authentication**: JWT-based authentication
+- **Backend Services**: FastAPI (Python 3.10+)
+- **Database**: PostgreSQL 14+ with SQLAlchemy 2.0/SQLModel
+- **Authentication**: JWT with bcrypt password hashing
+- **Storage**: PostgreSQL (development), AWS S3 (production)
+- **Containerization**: Docker and Kubernetes
+- **CI/CD**: GitHub Actions
 
 ### System Architecture
 
 ```
-                             +-----------------+
-                             |                 |
-                             |    Frontend     |
-                             |   (Next.js)     |
-                             |                 |
-                             +--------+--------+
+                             +------------------+
+                             |                  |
+                             |     Frontend     |
+                             |    (Next.js)     |
+                             |                  |
+                             +--------+---------+
                                       |
                                       | HTTP/REST
                                       |
-                             +--------v--------+
-                             |                 |
-                             |   API Gateway   |
-                             |    (FastAPI)    |
-                             |                 |
-                             +--------+--------+
+                             +--------v---------+
+                             |                  |
+                             |   API Gateway    |
+                             |                  |
+                             +--------+---------+
                                       |
-                 +--------------------+--------------------+
-                 |                    |                    |
-        +--------v--------+  +--------v--------+  +--------v--------+
-        |                 |  |                 |  |                 |
-        | Circuit Service |  |Execution Service|  |  User Service   |
-        |    (FastAPI)    |  |    (FastAPI)    |  |    (FastAPI)    |
-        |                 |  |                 |  |                 |
-        +--------+--------+  +--------+--------+  +--------+--------+
-                 |                    |                    |
-                 |                    |                    |
-        +--------v--------+  +--------v--------+  +--------v--------+
-        |                 |  |                 |  |                 |
-        |    MongoDB      |  |   Quantum       |  |     Redis       |
-        |                 |  |   Providers     |  |                 |
-        +-----------------+  +-----------------+  +-----------------+
+         +------------------------+---+---+------------------------+
+         |                        |       |                        |
++--------v--------+    +----------v-------+    +---------v--------+    More
+|                 |    |                  |    |                  |    Services...
+|  Auth Service   |    |  Project Service |    |   App Service    |
+|    (FastAPI)    |    |    (FastAPI)     |    |    (FastAPI)     |
+|                 |    |                  |    |                  |
++--------+--------+    +----------+-------+    +---------+--------+
+         |                        |                      |
+         |                        |                      |
+         |                        |                      |
+         |              +---------v----------+           |
+         |              |                    |           |
+         +------------->|     PostgreSQL     |<----------+
+                        |                    |
+                        +--------------------+
 ```
 
-### Component Details
+### Services
 
-1. **Frontend**: Provides the user interface for interacting with quantum applications, including the marketplace, circuit editor, and results visualization.
-
-2. **API Gateway**: Serves as the entry point for all client requests, handling authentication, request routing, and cross-cutting concerns.
-
-3. **Circuit Service**: Manages quantum circuit definitions, transformations, and conversions to provider-specific formats.
-
-4. **Execution Service**: Handles the execution of quantum circuits on various backends, job scheduling, and result collection.
-
-5. **User Service**: Manages user accounts, authentication, authorization, and user preferences.
-
-6. **Databases**:
-   - MongoDB for persistent storage of user data, circuits, and execution results
-   - Redis for caching and session management
+1. **Auth Service**: User authentication, registration, and session management
+2. **User Service**: User profile and preferences management
+3. **Project Service**: Development project management and IDE integration
+4. **App Service**: Quantum application management, versioning, and packaging
+5. **Registry Service**: Distribution of open-source quantum applications
+6. **Marketplace Service**: Commercial quantum application discovery and purchasing
+7. **Execution Service**: Job submission, scheduling, and result handling
+8. **Billing Service**: Subscription management and payment processing
+9. **Analytics Service**: Usage tracking and reporting
 
 ## Getting Started
 
 ### Prerequisites
 
 - Docker and Docker Compose
-- Node.js 18+ (for local development)
-- Python 3.11+ (for local development)
+- Node.js 18+ (for frontend development)
+- Python 3.10+ (for backend development)
+- PostgreSQL 14+ (for local development without Docker)
 
 ### Quick Start with Docker Compose
 
@@ -128,21 +126,29 @@ The Quantum Hub is built on a modern microservices architecture with a clear sep
 
 1. Set up a Python virtual environment:
    ```bash
+   cd services/auth_service
    python -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
 
-2. Install dependencies for a specific service:
+2. Install dependencies:
    ```bash
-   cd services/circuit-service
    pip install -r requirements.txt
    ```
 
 3. Run the service:
    ```bash
-   cd src
    uvicorn main:app --reload --port 8001
    ```
+
+4. Repeat for other services, using different ports
+
+## Project Documentation
+
+- `PLANNING.md` - Frontend architecture and design
+- `PLANNING_BACKEND.md` - Backend architecture and design
+- `TASK.md` - Frontend implementation tasks
+- `TASK_BACKEND.md` - Backend implementation tasks
 
 ## Deployment
 
@@ -164,9 +170,10 @@ The Quantum Hub is designed to be deployed in a Kubernetes environment:
 API documentation is automatically generated using Swagger/OpenAPI:
 
 - API Gateway: http://localhost:8000/docs
-- Circuit Service: http://localhost:8001/docs
-- Execution Service: http://localhost:8002/docs
-- User Service: http://localhost:8003/docs
+- Auth Service: http://localhost:8001/docs
+- User Service: http://localhost:8002/docs
+- Project Service: http://localhost:8003/docs
+- Additional service endpoints documented in Swagger UI
 
 ## Contributing
 
@@ -185,6 +192,8 @@ API documentation is automatically generated using Swagger/OpenAPI:
 - [IBM Quantum](https://quantum-computing.ibm.com/)
 - [AWS Braket](https://aws.amazon.com/braket/)
 - [Azure Quantum](https://azure.microsoft.com/en-us/services/quantum/)
+- [Google Quantum AI](https://quantumai.google/)
 - [Qiskit](https://qiskit.org/)
 - [Cirq](https://quantumai.google/cirq)
-# Project reorganization completed
+- [Pennylane](https://pennylane.ai/)
+- [Braket SDK](https://github.com/aws/amazon-braket-sdk-python)
