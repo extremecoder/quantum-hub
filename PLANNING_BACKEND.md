@@ -520,3 +520,291 @@ class UsageAnalytics(Base, BaseModelMixin):
 - **Metrics**: Prometheus for system metrics
 - **Tracing**: OpenTelemetry for distributed tracing
 - **Alerts**: Automated alerts for system anomalies
+
+
+
+### Quantum Hub Detailed Flow Analysis
+
+## 1. User Authentication & Onboarding
+
+### Initial Access
+- User navigates to the Quantum Hub landing page
+- User views marketing content explaining the platform's capabilities
+- User clicks "Sign Up" button in the navigation bar
+- System displays registration form with fields for username, email, password, and optional full name
+- User completes form and submits
+- Frontend validates inputs (email format, password strength)
+- Frontend sends POST request to `/auth/register` endpoint
+- Backend validates inputs again
+- Backend creates new User record with both DEVELOPER and CONSUMER roles
+- Backend generates confirmation token and sends verification email
+- System displays "Verification email sent" message
+- User receives email and clicks verification link
+- Backend validates token, sets `is_active=true` for the user
+- System redirects to login page with success message
+
+### Authentication
+- User enters credentials on login page
+- Frontend sends POST request to `/auth/login` endpoint
+- Backend validates credentials against `User.hashed_password`
+- Backend creates UserSession record with JWT token
+- Backend returns JWT token and user information
+- Frontend stores token in local storage/cookies
+- System redirects to Dashboard
+- If first login, system displays onboarding tutorial
+
+## 2. Profile & API Key Setup
+
+### Profile Completion
+- User navigates to Settings from Dashboard
+- User views profile form with fields for organization, bio, avatar
+- User completes profile information
+- Frontend sends PUT request to `/users/{id}/profile` endpoint
+- Backend creates or updates UserProfile record
+- System displays success message
+
+### API Key Generation
+- User navigates to "API Keys" section in Dashboard
+- System displays list of existing API keys (if any)
+- User clicks "Generate New API Key" button
+- System displays form for key name and optional expiration
+- User completes form and submits
+- Frontend sends POST request to `/api-keys` endpoint
+- Backend generates secure random string for key value
+- Backend creates UserApiKey record
+- Backend returns full key value (only shown once)
+- System displays key with copy button and warning that it won't be shown again
+- Subsequent views show masked key value (e.g., "sk_****1234")
+
+## 3. Project Development Workflow
+
+### Project Creation
+- User navigates to "Develop" section in main navigation
+- System displays list of existing projects (if any)
+- User clicks "Create New Project" button
+- System displays project creation form with fields for name, description, type, template
+- User completes form and submits
+- Frontend sends POST request to `/projects` endpoint
+- Backend creates Project record
+- System redirects to project detail page
+
+### Development Environment
+- User views project details with "Open IDE" button
+- User clicks "Open IDE" button
+- System loads embedded VSCode IDE with project scaffolding
+- Scaffolding includes:
+  - `src/` directory for quantum code
+  - `tests/` directory for unit tests
+  - `dist/` directory for build artifacts
+  - Configuration files (`requirements.txt`, `manifest.json`)
+- User writes quantum circuit/algorithm using chosen SDK
+- User runs local tests within IDE
+- User triggers e2e-pipeline via GitHub Actions integration
+- Pipeline runs tests, validation, and builds package
+- Package (zip) is generated in `dist/` folder
+
+### Project Release
+- User clicks "Release Project" button in IDE or project page
+- System displays multi-step wizard:
+  - Step 1: Basic Information (name, description, type)
+  - Step 2: Version details (version number, SDK used, platforms)
+  - Step 3: Upload package (or use auto-generated package)
+  - Step 4: Review information
+- User completes wizard and submits
+- Frontend sends POST request to `/projects/{id}/release` endpoint with form data and package
+- Backend creates QuantumApp record with `status=["PACKAGED", "UPLOADED"]`
+- Backend creates AppVersion record with technical metadata
+- Backend stores package in database (temporarily, later S3)
+- System redirects to app detail page with success message
+
+## 4. Quantum App Management
+
+### App Dashboard
+- User navigates to "Dashboard" in main navigation
+- User clicks "My Apps" tab
+- System displays list of user's quantum apps with status indicators
+- User can filter by status, type, or search by name
+- User clicks on app to view details
+
+### App Editing
+- User views app details page
+- User clicks "Edit" button
+- System displays app edit form with current values
+- User updates information and submits
+- Frontend sends PUT request to `/quantum-apps/{id}` endpoint
+- Backend updates QuantumApp record
+- System displays success message
+
+### Publishing to Registry
+- User views app details page
+- User clicks "Publish to Registry" button
+- System displays confirmation dialog with registry guidelines
+- User confirms publication
+- Frontend sends POST request to `/quantum-apps/{id}/publish-registry` endpoint
+- Backend updates `QuantumApp.status` to include "PUBLISHED_REGISTRY"
+- Backend sets `is_in_registry=true` and `registry_published_at` timestamp
+- System displays success message with link to registry listing
+
+### Publishing to Marketplace
+- User views app details page for registry-published app
+- User clicks "Publish to Marketplace" button
+- System displays multi-step marketplace wizard:
+  - Step 1: API Details (endpoints, input/output schema)
+  - Step 2: Pricing information (subscription tiers)
+  - Step 3: Support details (email, documentation)
+  - Step 4: Review and publish
+- User completes wizard and submits
+- Frontend sends POST request to `/quantum-apps/{id}/publish-marketplace` endpoint
+- Backend updates `QuantumApp.status` to include "PUBLISHED_MARKETPLACE"
+- Backend creates MarketplaceListing record
+- System displays success message with link to marketplace listing
+
+## 5. Registry & Marketplace Exploration
+
+### Registry Browsing
+- User navigates to "Registry" in main navigation
+- System displays grid of registry apps with filtering options
+- Backend queries apps where `is_in_registry=true`
+- User applies filters (type, SDK, platform) or searches
+- User clicks on app to view details
+- System displays app details page with readme, versions, metrics
+- User clicks "Download" button for preferred version
+- Frontend sends POST request to `/registry/download/{id}` endpoint
+- Backend increments `registry_download_count`
+- Backend returns package file for download
+- User receives zip package with quantum app files
+
+### Marketplace Browsing
+- User navigates to "Marketplace" in main navigation
+- System displays grid of marketplace apps with filtering options
+- Backend queries apps with associated MarketplaceListing records
+- User applies filters (price, type, rating) or searches
+- User clicks on app to view details
+- System displays marketplace listing with pricing, rating, documentation
+
+### Subscription Process
+- User views marketplace listing
+- User clicks "Get Trial" or "Subscribe" button
+- System displays subscription confirmation with terms and pricing
+- User confirms subscription
+- Frontend sends POST request to `/marketplace/{id}/subscribe` endpoint
+- Backend creates Subscription record with appropriate `subscription_type`
+- Backend creates SubscriptionKey for API access
+- If paid tier, backend creates/updates UserBill record
+- System redirects to "My Subscriptions" page
+- User views subscription details and API access credentials
+
+## 6. Quantum Execution Workflow
+
+### API Integration
+- User navigates to "API Keys" or "My Subscriptions" in Dashboard
+- User copies subscription key for desired API
+- User integrates key into their application code
+- User's application makes API calls to quantum service endpoint
+
+### Job Execution
+- User's application sends request with subscription key
+- Backend validates SubscriptionKey status and limits
+- Backend creates Job record with `status="QUEUED"`
+- If blocking mode:
+  - Backend holds connection open
+  - Job executes on selected hardware
+  - Backend updates `Job.status` to "RUNNING" then "COMPLETED"
+  - Backend creates JobResult record
+  - Backend returns results to user's application
+- If non-blocking mode:
+  - Backend returns job ID immediately
+  - Job executes asynchronously
+  - User's application polls `/jobs/{id}` endpoint
+  - When complete, backend returns results
+
+## 7. Analytics & Billing
+### Usage Analytics
+- User navigates to "Analytics" section in Dashboard
+- System displays charts for API requests, compute time, costs
+- User can filter by date range, app, or subscription
+- System shows trends and usage patterns
+
+### Billing Management
+- User navigates to "Billing" section in Dashboard
+- System displays current billing period, pending charges, payment history
+- User can view itemized charges for each subscription
+- User can download invoice PDFs
+- User can update payment methods or billing preferences
+
+
+```mermaid
+graph TD
+%% Main user flows
+A[Landing Page] --> B[Sign Up]
+B --> C[Email Verification]
+C --> D[Login]
+D --> E[Dashboard]
+
+%% Dashboard branches
+E --> F[Profile Setup]
+E --> G[API Key Management]
+E --> H[Develop Section]
+E --> I[My Apps]
+E --> J[My Subscriptions]
+E --> K[Jobs]
+E --> L[Analytics & Billing]
+
+%% Development flow
+H --> M[Create Project]
+H --> N[Open Existing Project]
+M --> O[IDE Environment]
+N --> O
+O --> P[Write Code]
+P --> Q[Run Tests]
+Q --> R[Build Package]
+R --> S[Release Project]
+
+%% App management flow
+S --> T[Create QuantumApp]
+I --> U[Edit App]
+U --> V[Publish to Registry]
+V --> W[Registry Listing]
+V --> X[Publish to Marketplace]
+X --> Y[Marketplace Listing]
+
+%% Consumer flow
+E --> Z[Registry Exploration]
+E --> AA[Marketplace Exploration]
+Z --> AB[Download App]
+AA --> AC[Subscribe to App]
+AC --> AD[Get API Credentials]
+AD --> AE[Integrate API]
+AE --> AF[Execute Jobs]
+AF --> AG[View Results]
+
+%% Billing flow
+AC --> AH[Generate Bill]
+AH --> AI[Process Payment]
+
+%% Job management
+AF --> AJ[Create Job]
+AJ --> AK[Execute on Hardware]
+AK --> AL[Store Results]
+AL --> AG
+
+%% Data model connections
+B -.-> User[User Model]
+F -.-> UserProfile[UserProfile Model]
+G -.-> UserApiKey[UserApiKey Model]
+M -.-> Project[Project Model]
+S -.-> QuantumApp[QuantumApp Model]
+S -.-> AppVersion[AppVersion Model]
+X -.-> MarketplaceListing[MarketplaceListing Model]
+AC -.-> Subscription[Subscription Model]
+AD -.-> SubscriptionKey[SubscriptionKey Model]
+AJ -.-> Job[Job Model]
+AL -.-> JobResult[JobResult Model]
+AH -.-> UserBill[UserBill Model]
+
+%% Style
+classDef page fill:#ffcce6,stroke:#333,stroke-width:2px;
+classDef model fill:#ccdfff,stroke:#333,stroke-width:1px,stroke-dasharray: 5 5;
+class A,D,E,H,I,Z,AA page;
+class User,UserProfile,Project,QuantumApp,MarketplaceListing,Subscription,Job model;
+```
