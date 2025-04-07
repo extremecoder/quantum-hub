@@ -102,6 +102,13 @@ class Token(BaseModel):
 class TokenData(BaseModel):
     username: Optional[str] = None
 
+# Import models and API key service
+from models import (
+    User, UserCreate, UserInDB, Token, TokenData, 
+    APIKeyCreate, APIKeyResponse, APIUsageStats
+)
+import api_key_service
+
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
@@ -295,3 +302,89 @@ async def google_auth_callback(code: str):
 async def health_check():
     """Health check endpoint"""
     return {"status": "healthy"}
+
+# API Key routes
+@app.post("/api-keys", response_model=APIKeyResponse)
+async def create_api_key(
+    key_data: APIKeyCreate, 
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Create a new API key for the current user.
+    """
+    api_key = await api_key_service.create_api_key(current_user.id, key_data)
+    
+    # For the creation response, return the full unmasked key
+    return APIKeyResponse(
+        id=api_key.id,
+        key=api_key.key,  # Only return the full key on creation
+        name=api_key.name,
+        created_at=api_key.created_at,
+        expires_at=api_key.expires_at,
+        is_active=api_key.is_active
+    )
+
+@app.get("/api-keys", response_model=List[APIKeyResponse])
+async def get_api_keys(current_user: User = Depends(get_current_user)):
+    """
+    Get all API keys for the current user.
+    """
+    return await api_key_service.get_api_keys(current_user.id)
+
+@app.get("/api-keys/{key_id}", response_model=APIKeyResponse)
+async def get_api_key(
+    key_id: str, 
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Get a specific API key by ID.
+    """
+    api_key = await api_key_service.get_api_key(current_user.id, key_id)
+    if not api_key:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="API key not found"
+        )
+    return api_key
+
+@app.delete("/api-keys/{key_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def revoke_api_key(
+    key_id: str, 
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Revoke (disable) an API key.
+    """
+    success = await api_key_service.revoke_api_key(current_user.id, key_id)
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="API key not found"
+        )
+    return None
+
+@app.get("/api-keys/usage/stats", response_model=APIUsageStats)
+async def get_api_usage_stats(current_user: User = Depends(get_current_user)):
+    """
+    Get API usage statistics for the current user.
+    """
+    return await api_key_service.get_api_usage_stats(current_user.id)
+
+# Initialize sample data for development
+@app.on_event("startup")
+async def startup_event():
+    """
+    Initialize the API on startup.
+    """
+    # Create sample users if none exist
+    if not users_db:
+        demo_user = UserCreate(
+            username="demo_user",
+            email="demo@example.com",
+            password="demo_password",
+            full_name="Demo User"
+        )
+        await create_user(demo_user)
+    
+    # Initialize sample API keys
+    api_key_service.init_sample_data()

@@ -4,7 +4,7 @@
 
 ### Phase 1: Core Portal & Dashboard Foundation
 *   ✅ Implement user authentication backend integration for Signup/Signin.
-*   Build Dashboard `API Keys` management functionality (generate, revoke, copy) and usage display.
+*   ✅ Build Dashboard `API Keys` management functionality (generate, revoke, copy) and usage display.
 *   Implement Dashboard `My Published Circuits` view (fetch data, display table, implement View/Update placeholders).
 *   Build Documentation portal structure and content loading.
 *   Implement basic `Settings` page structure.
