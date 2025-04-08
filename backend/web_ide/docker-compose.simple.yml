@@ -1,0 +1,17 @@
+services:
+  code_server:
+    image: codercom/code-server:latest
+    container_name: quantum-hub-vscode
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./templates:/workspace
+    environment:
+      - PORT=8080
+      - WORKSPACE_DIR=/workspace
+    command: --auth none --bind-addr 0.0.0.0:8080 /workspace
+    restart: unless-stopped
+    user: "1000:1000"
+
+volumes:
+  code_workspace:

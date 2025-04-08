@@ -110,6 +110,7 @@ services:
       - PROJECT_SERVICE_URL=http://project_service:8000
       - REGISTRY_SERVICE_URL=http://registry_service:8000
       - MARKETPLACE_SERVICE_URL=http://marketplace_service:8000
+      - WEB_IDE_SERVICE_URL=http://web_ide_service:8000
       - JWT_SECRET_KEY=your-secret-key
     command: uvicorn main:app --host 0.0.0.0 --port 8000
     working_dir: /app/services/api_gateway
@@ -118,6 +119,38 @@ services:
       - project_service
       - registry_service
       - marketplace_service
+      - web_ide_service
+    networks:
+      - quantum-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  web_ide_service:
+    build:
+      context: ./backend/web_ide
+      dockerfile: Dockerfile
+    ports:
+      - "8010:8000"  # FastAPI backend for IDE management
+      - "8080:8080"  # Code Server UI
+    volumes:
+      - ./backend/web_ide/src:/app
+      - web_ide_workspace:/workspace
+      - web_ide_templates:/templates
+    environment:
+      - DEBUG=true
+      - HOST=0.0.0.0
+      - PORT=8000
+      - VSCODE_HOST=0.0.0.0
+      - VSCODE_PORT=8080
+      - WORKSPACE_DIR=/workspace
+      - TEMPLATE_DIR=/templates
+      - AUTH_SERVICE_URL=http://auth_service:8000
+      - PROJECT_SERVICE_URL=http://project_service:8000
+    depends_on:
+      - project_service
     networks:
       - quantum-net
     healthcheck:
@@ -131,4 +164,9 @@ networks:
     driver: bridge
 
 volumes:
-  mongodb_data: 
+  mongodb_data:
+    driver: local
+  web_ide_workspace:
+    driver: local
+  web_ide_templates:
+    driver: local

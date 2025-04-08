@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  web_ide:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8010:8000"  # FastAPI backend
+      - "3010:3000"  # OpenVSCode Server
+    volumes:
+      - ./src:/app
+      - web_ide_workspace:/workspace
+    environment:
+      - DEBUG=true
+      - HOST=0.0.0.0
+      - PORT=8000
+      - VSCODE_HOST=localhost
+      - VSCODE_PORT=3000
+      - WORKSPACE_DIR=/workspace
+      - TEMPLATE_DIR=/templates
+    restart: unless-stopped
+
+volumes:
+  web_ide_workspace:
+    driver: local

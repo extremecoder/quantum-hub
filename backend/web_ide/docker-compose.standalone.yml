@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  web_ide_standalone:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8010:8000"  # FastAPI service - map container port 8000 to host port 8010
+      - "8080:8080"  # VS Code server - map container port 8080 to host port 8080
+    volumes:
+      - ./src:/app
+      - web_ide_workspace:/workspace
+      - ./templates:/templates
+    environment:
+      - DEBUG=true
+      - HOST=0.0.0.0
+      - PORT=8000
+      - VSCODE_HOST=0.0.0.0
+      - VSCODE_PORT=8080  # Make sure code-server uses port 8080 instead of 8000
+      - WORKSPACE_DIR=/workspace
+      - TEMPLATE_DIR=/templates
+    restart: unless-stopped
+
+volumes:
+  web_ide_workspace:
+    driver: local

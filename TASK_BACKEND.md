@@ -237,44 +237,74 @@ This document outlines the specific tasks required to implement the Quantum Hub 
 149. [ ] Write tests for export functionality
 150. [ ] Implement test coverage for analytics calculations
 
-## Phase 11: Integration & Deployment
+## Phase 11: Web IDE Service
+
+### Setup and Configuration
+151. [ ] Create Web IDE microservice with FastAPI
+152. [ ] Configure Docker container with OpenVSCode Server
+153. [ ] Implement project repository initialization with quantum scaffolding
+154. [ ] Create GitHub integration for repository creation and management
+155. [ ] Set up persistent storage for user workspaces
+
+### API Endpoints
+156. [ ] Implement endpoint to create new project with scaffolding
+157. [ ] Implement endpoint to open existing project
+158. [ ] Create API for project file operations (create, read, update, delete)
+159. [ ] Implement project metadata and settings endpoints
+160. [ ] Add endpoint for executing quantum code and simulations
+
+### Security and Integration
+161. [ ] Implement secure WebSocket communication between frontend and OpenVSCode
+162. [ ] Create authentication and session management for IDE sessions
+163. [ ] Configure proper CORS and security headers
+164. [ ] Integrate with Project Management service for synchronization
+165. [ ] Implement resource monitoring and limiting
+
+### Testing
+166. [ ] Write unit tests for Web IDE controllers
+167. [ ] Create integration tests for project scaffolding
+168. [ ] Test WebSocket communication
+169. [ ] Write tests for file operations
+170. [ ] Implement test coverage for IDE session management
+
+## Phase 12: Integration & Deployment
 
 ### API Gateway
-151. [ ] Set up API gateway for service routing
-152. [ ] Implement rate limiting
-153. [ ] Add request logging
-154. [ ] Create service discovery
-155. [ ] Implement circuit breaker patterns
+171. [ ] Set up API gateway for service routing
+172. [ ] Implement rate limiting
+173. [ ] Add request logging
+174. [ ] Create service discovery
+175. [ ] Implement circuit breaker patterns
 
 ### Deployment
-156. [ ] Create Kubernetes deployment manifests
-157. [ ] Set up CI/CD pipelines with GitHub Actions
-158. [ ] Implement blue/green deployment strategy
-159. [ ] Create database backup and restore procedures
-160. [ ] Set up monitoring and alerting
+176. [ ] Create Kubernetes deployment manifests
+177. [ ] Set up CI/CD pipelines with GitHub Actions
+178. [ ] Implement blue/green deployment strategy
+179. [ ] Create database backup and restore procedures
+180. [ ] Set up monitoring and alerting
 
 ### Documentation
-161. [ ] Create OpenAPI documentation for all endpoints
-162. [ ] Write developer documentation
-163. [ ] Create system architecture diagrams
-164. [ ] Write deployment guides
-165. [ ] Create API integration examples
+181. [ ] Create OpenAPI documentation for all endpoints
+182. [ ] Write developer documentation
+183. [ ] Create system architecture diagrams
+184. [ ] Write deployment guides
+185. [ ] Create API integration examples
 
-## Phase 12: Security & Compliance
+## Phase 13: Security & Compliance
 
 ### Security
-166. [ ] Perform security audit
-167. [ ] Implement data encryption at rest
-168. [ ] Add API key rotation
-169. [ ] Create security headers
-170. [ ] Implement rate limiting and throttling
+186. [ ] Perform security audit
+187. [ ] Implement data encryption at rest
+188. [ ] Add API key rotation
+189. [ ] Create security headers
+190. [ ] Implement rate limiting and throttling
 
 ### Compliance
-171. [ ] Create data retention policies
-172. [ ] Implement GDPR compliance features
-173. [ ] Add audit logging
-174. [ ] Create data export functionality
-175. [ ] Implement privacy policy enforcement
+191. [ ] Create data retention policies
+192. [ ] Implement GDPR compliance features
+193. [ ] Add audit logging
+194. [ ] Create data export functionality
+195. [ ] Implement privacy policy enforcement
 
 ## Instructions for Using This Task List
 
@@ -286,8 +316,8 @@ This document outlines the specific tasks required to implement the Quantum Hub 
 
 ## Progress Tracking
 
-- Total Tasks: 175
-- Not Started: 175
+- Total Tasks: 195
+- Not Started: 195
 - In Progress: 0
 - Completed: 0
 

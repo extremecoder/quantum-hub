@@ -103,9 +103,11 @@ enum DashboardTab {
   APIKeys = 'API Keys',
   Settings = 'Settings',
   MyPublishedCircuits = 'My Published Circuits',
+  Jobs = 'Jobs'
 }
 
 import ApiKeysTab from '../components/dashboard/ApiKeysTab';
+import JobManagement from '../components/dashboard/JobManagement';
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState<DashboardTab>(DashboardTab.MyApplications);
@@ -127,98 +129,36 @@ export default function Dashboard() {
             <CodeIcon className="h-5 w-5 mr-2" />
             Develop
           </Link>
-          <Link 
-            href="/dashboard/publish-circuit"
-            className="btn-secondary inline-flex items-center text-sm"
-          >
-            <CollectionIcon className="h-5 w-5 mr-2" />
-            Publish to Registry
-          </Link>
-          <Link 
-            href="/dashboard/publish-api"
+          <Link
+            href="/marketplace"
             className="btn-primary inline-flex items-center text-sm"
           >
-            <DocumentAddIcon className="h-5 w-5 mr-2" />
-            Publish API
+            <ChipIcon className="h-5 w-5 mr-2" />
+            Explore Marketplace
           </Link>
         </div>
       </div>
       
-      {/* Dashboard tabs */}
-      <div className="mb-6 border-b border-gray-200 dark:border-gray-700">
-        <div className="flex overflow-x-auto">
-          <button
-            className={`py-4 px-6 -mb-px border-b-2 font-medium text-sm whitespace-nowrap ${
-              activeTab === DashboardTab.MyApplications
-                ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400 dark:border-indigo-400'
-                : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
-            }`}
-            onClick={() => setActiveTab(DashboardTab.MyApplications)}
-          >
-            <CollectionIcon className="h-5 w-5 mr-2 inline" />
-            My Applications
-          </button>
-          <button
-            className={`py-4 px-6 -mb-px border-b-2 font-medium text-sm whitespace-nowrap ${
-              activeTab === DashboardTab.MyPublishedCircuits
-                ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400 dark:border-indigo-400'
-                : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
-            }`}
-            onClick={() => setActiveTab(DashboardTab.MyPublishedCircuits)}
-          >
-            <ChipIcon className="h-5 w-5 mr-2 inline" />
-            My Published Circuits
-          </button>
-          <button
-            className={`py-4 px-6 -mb-px border-b-2 font-medium text-sm whitespace-nowrap ${
-              activeTab === DashboardTab.HardwareUsage
-                ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400 dark:border-indigo-400'
-                : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
-            }`}
-            onClick={() => setActiveTab(DashboardTab.HardwareUsage)}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
-            </svg>
-            Hardware Usage
-          </button>
-          <button
-            className={`py-4 px-6 -mb-px border-b-2 font-medium text-sm whitespace-nowrap ${
-              activeTab === DashboardTab.Analytics
-                ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400 dark:border-indigo-400'
-                : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
-            }`}
-            onClick={() => setActiveTab(DashboardTab.Analytics)}
-          >
-            <ChartBarIcon className="h-5 w-5 mr-2 inline" />
-            Analytics
-          </button>
-          <button
-            className={`py-4 px-6 -mb-px border-b-2 font-medium text-sm whitespace-nowrap ${
-              activeTab === DashboardTab.APIKeys
-                ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400 dark:border-indigo-400'
-                : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
-            }`}
-            onClick={() => setActiveTab(DashboardTab.APIKeys)}
-          >
-            <KeyIcon className="h-5 w-5 mr-2 inline" />
-            API Keys
-          </button>
-          <button
-            className={`py-4 px-6 -mb-px border-b-2 font-medium text-sm whitespace-nowrap ${
-              activeTab === DashboardTab.Settings
-                ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400 dark:border-indigo-400'
-                : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
-            }`}
-            onClick={() => setActiveTab(DashboardTab.Settings)}
-          >
-            <CogIcon className="h-5 w-5 mr-2 inline" />
-            Settings
-          </button>
-        </div>
+      {/* Dashboard Navigation */}
+      <div className="border-b border-gray-200 dark:border-gray-700 mb-8">
+        <nav className="-mb-px flex space-x-8">
+          {Object.values(DashboardTab).map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`${
+                activeTab === tab
+                  ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+              } whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm`}
+            >
+              {tab}
+            </button>
+          ))}
+        </nav>
       </div>
       
-      {/* Applications Section */}
+      {/* My Applications Tab */}
       {activeTab === DashboardTab.MyApplications && (
         <div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -267,7 +207,7 @@ export default function Dashboard() {
               <div className="flex justify-between items-start mb-4">
                 <div className="p-3 bg-yellow-100 rounded-lg dark:bg-yellow-900">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-yellow-600 dark:text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zM9 9h6v6H9V9z" />
                   </svg>
                 </div>
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
@@ -473,7 +413,12 @@ export default function Dashboard() {
         </div>
       )}
       
-      {/* API Keys Section */}
+      {/* Jobs Section */}
+      {activeTab === DashboardTab.Jobs && (
+        <JobManagement />
+      )}
+      
+      {/* APIKeys Tab */}
       {activeTab === DashboardTab.APIKeys && (
         <ApiKeysTab />
       )}
