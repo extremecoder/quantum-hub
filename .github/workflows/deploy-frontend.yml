@@ -48,14 +48,14 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    - name: Build and push FRONTEND multi-platform Docker image
-      uses: docker/build-push-action@v6
-      with:
-        context: ./frontend # Set context to frontend directory
-        file: ./frontend/Dockerfile # Assumes Dockerfile is directly in frontend/
-        platforms: linux/amd64,linux/arm64
-        push: true
-        tags: abhishekt/quantum-hub-frontend:latest # Use the specific tag from your manifest
+    # - name: Build and push FRONTEND multi-platform Docker image
+    #   uses: docker/build-push-action@v6
+    #   with:
+    #     context: ./frontend # Set context to frontend directory
+    #     file: ./frontend/Dockerfile # Assumes Dockerfile is directly in frontend/
+    #     platforms: linux/amd64,linux/arm64
+    #     push: true
+    #     tags: abhishekt/quantum-hub-frontend:latest # Use the specific tag from your manifest
 
     # --- End Docker Step ---
 
