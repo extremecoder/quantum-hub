@@ -5,20 +5,21 @@ variable "alb_dns_name" {
   # No default value, as it must be provided externally
 }
 
-# Data source to look up the existing API Gateway
-data "aws_apigatewayv2_api" "existing_quantum_api" {
-  # Find the API Gateway created by the microservice project
-  # Make sure this name exactly matches the existing API Gateway name
-  name = "quantum-microservice-http-api"
+# Data source to look up the existing API Gateway IDs by name
+data "aws_apigatewayv2_apis" "existing_quantum_apis" {
+  # Find API Gateways matching the name and type
+  name          = "quantum-microservice-http-api"
+  protocol_type = "HTTP"
 }
 
 # Task 7: API Gateway integration with ALB (HTTP)
 # This integration will be associated with the existing API Gateway looked up above
 resource "aws_apigatewayv2_integration" "quantum_alb_integration" {
-  api_id             = data.aws_apigatewayv2_api.existing_quantum_api.id # Use ID from data source
+  # Use the first ID found by the data source. Fails if no matching API is found.
+  api_id             = tolist(data.aws_apigatewayv2_apis.existing_quantum_apis.ids)[0]
   integration_type   = "HTTP_PROXY"
   integration_method = "ANY"
-  integration_uri    = "http://${var.alb_dns_name}:80/{proxy}" # Use port 80 for ALB listener
+  integration_uri    = "http://${var.alb_dns_name}:80/{proxy}"
   payload_format_version = "1.0"
 }
 
@@ -26,7 +27,7 @@ resource "aws_apigatewayv2_integration" "quantum_alb_integration" {
 
 # Route for backend API calls (/api/*)
 resource "aws_apigatewayv2_route" "backend_api_route" {
-  api_id    = data.aws_apigatewayv2_api.existing_quantum_api.id # Use ID from data source
+  api_id    = tolist(data.aws_apigatewayv2_apis.existing_quantum_apis.ids)[0]
   route_key = "ANY /api/{proxy+}"
   target    = "integrations/${aws_apigatewayv2_integration.quantum_alb_integration.id}"
 }
@@ -34,7 +35,7 @@ resource "aws_apigatewayv2_route" "backend_api_route" {
 # Route for frontend calls (everything else)
 # Note: This replaces the single default route possibly created by the other project
 resource "aws_apigatewayv2_route" "frontend_route" {
-  api_id    = data.aws_apigatewayv2_api.existing_quantum_api.id # Use ID from data source
+  api_id    = tolist(data.aws_apigatewayv2_apis.existing_quantum_apis.ids)[0]
   route_key = "ANY /{proxy+}"
   target    = "integrations/${aws_apigatewayv2_integration.quantum_alb_integration.id}"
 }
@@ -53,9 +54,16 @@ resource "aws_apigatewayv2_route" "frontend_route" {
 #   name   = "$default"
 # }
 
+# Data source to get details (like endpoint) of the specific API found above
+data "aws_apigatewayv2_api" "selected_quantum_api" {
+  # Ensure at least one API was found by the filter before trying to look it up
+  count  = length(data.aws_apigatewayv2_apis.existing_quantum_apis.ids) > 0 ? 1 : 0
+  api_id = tolist(data.aws_apigatewayv2_apis.existing_quantum_apis.ids)[0]
+}
 
 # Task 10: Output the API Gateway invoke URL
 output "api_gateway_invoke_url" {
   description = "The invoke URL for the existing API Gateway stage"
-  value       = data.aws_apigatewayv2_api.existing_quantum_api.api_endpoint # Use endpoint from data source
+  # Access the endpoint from the selected_quantum_api data source, provide fallback if not found
+  value       = try(data.aws_apigatewayv2_api.selected_quantum_api[0].api_endpoint, "API Gateway 'quantum-microservice-http-api' not found")
 } 
