@@ -60,7 +60,7 @@ yarn-error.log*
 yarn.lock
 .pnp/
 .pnp.js
-package-lock.json
+
 
 # Next.js/React build outputs
 .next/
