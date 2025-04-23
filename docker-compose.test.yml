@@ -4,7 +4,7 @@ services:
   postgres:
     image: postgres:14-alpine
     ports:
-      - "5432:5432"
+      - "5433:5432"  # Changed from 5432:5432 to avoid conflict with local PostgreSQL
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
@@ -24,18 +24,18 @@ services:
       context: .
       dockerfile: services/auth_service/Dockerfile
     ports:
-      - "8001:8010"
+      - "8001:8000"
     environment:
       - DATABASE_URL=postgresql://quantum_user:quantum_password@postgres:5432/quantum_hub
       - JWT_SECRET_KEY=your-secret-key
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8010
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
     working_dir: /app/services/auth_service
     depends_on:
       - postgres
     networks:
       - quantum-net
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8010/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -105,15 +105,15 @@ services:
       context: .
       dockerfile: services/api_gateway/Dockerfile
     ports:
-      - "9000:8010"
+      - "9000:8000"  # Changed to port 9000 to avoid conflict
     environment:
-      - AUTH_SERVICE_URL=http://auth_service:8010
+      - AUTH_SERVICE_URL=http://auth_service:8000
       - PROJECT_SERVICE_URL=http://project_service:8000
       - REGISTRY_SERVICE_URL=http://registry_service:8000
       - MARKETPLACE_SERVICE_URL=http://marketplace_service:8000
       - WEB_IDE_SERVICE_URL=http://web_ide_service:8000
       - JWT_SECRET_KEY=your-secret-key
-    command: uvicorn main:app --host 0.0.0.0 --port 8010
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
     working_dir: /app/services/api_gateway
     depends_on:
       - auth_service
@@ -124,7 +124,7 @@ services:
     networks:
       - quantum-net
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8010/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -135,7 +135,7 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8010:8000"  # FastAPI backend for IDE management
-      - "8080:8080"  # Code Server UI
+      - "8085:8080"  # Changed Code Server UI port to 8085
     volumes:
       - ./backend/web_ide/src:/app
       - web_ide_workspace:/workspace
@@ -149,7 +149,7 @@ services:
       - WORKSPACE_DIR=/workspace
       - TEMPLATE_DIR=/templates
       - DATABASE_URL=postgresql://quantum_user:quantum_password@postgres:5432/quantum_hub
-      - AUTH_SERVICE_URL=http://auth_service:8010
+      - AUTH_SERVICE_URL=http://auth_service:8000
       - PROJECT_SERVICE_URL=http://project_service:8000
     depends_on:
       - postgres

@@ -5,6 +5,7 @@ const nextConfig = {
     NEXTAUTH_SECRET: 'quantum-hub-secret-key',
   },
   reactStrictMode: true,
+  output: 'standalone',
 }
 
 module.exports = nextConfig

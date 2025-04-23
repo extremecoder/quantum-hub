@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
@@ -259,7 +259,15 @@ MIT
   }
 };
 
-export default function IDEPage() {
+export default function IDEPageWrapper() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <IDEPage />
+    </Suspense>
+  );
+}
+
+function IDEPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   

@@ -1,0 +1,35 @@
+# k8s/frontend-app-k8s.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-app-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend-app
+  template:
+    metadata:
+      labels:
+        app: frontend-app
+    spec:
+      containers:
+      - name: frontend-app
+        # Replace with your actual image name and tag
+        image: abhishekt/quantum-hub-frontend:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3000 # Default Next.js port, change if needed
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-app-service
+spec:
+  selector:
+    app: frontend-app
+  type: ClusterIP
+  ports:
+    - protocol: TCP
+      port: 80 # Service port can be 80
+      targetPort: 3000 # Container port where Next.js runs 

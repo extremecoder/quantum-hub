@@ -1,10 +1,18 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 
-export default function VSCodeEditorPage() {
+export default function VSCodeEditorPageWrapper() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <VSCodeEditorPage />
+    </Suspense>
+  );
+}
+
+function VSCodeEditorPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   

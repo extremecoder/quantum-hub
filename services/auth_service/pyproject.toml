@@ -1,0 +1,54 @@
+[tool.black]
+line-length = 100
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 100
+known_first_party = ["app", "services"]
+multi_line_output = 3
+include_trailing_comma = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+markers = [
+  "unit: Unit tests.",
+  "integration: Integration tests.",
+  "api: API endpoint tests.",
+  "slow: Slow running tests.",
+  "e2e: End-to-end tests.",
+  "auth: Authentication related tests.",
+  "user: User-related tests.",
+  "token: Token-related tests.",
+]
+asyncio_mode = "auto"
+addopts = "--cov=app --cov-report=term-missing --cov-report=xml:coverage.xml"
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+strict_optional = true
+check_untyped_defs = true
