@@ -1,3 +1,10 @@
+# Variable for the ALB DNS name passed from GitHub Actions
+variable "alb_dns_name" {
+  description = "The DNS name of the Application Load Balancer"
+  type        = string
+  # No default value, as it must be provided externally
+}
+
 # ... (variable "alb_dns_name" and aws_apigatewayv2_api "quantum_api" remain the same) ...
 
 # Task 7: API Gateway integration with ALB (HTTP) - Remains largely the same
