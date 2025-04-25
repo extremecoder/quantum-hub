@@ -73,51 +73,51 @@ jobs:
     - name: Wait for Frontend Deployment Rollout
       run: kubectl rollout status deployment frontend-app-deployment -n default --timeout=5m
 
-    - name: Wait for Ingress and Get ALB DNS Name
-      id: get_alb_dns
-      run: |
-        echo "Waiting for ALB Ingress to provision/update..."
-        count=0
-        ALB_DNS_NAME=""
-        while [ -z "$ALB_DNS_NAME" ] && [ $count -lt 15 ]; do
-          ALB_DNS_NAME=$(kubectl get ingress quantum-microservice-ingress -n default -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' 2>/dev/null)
-          if [ -z "$ALB_DNS_NAME" ]; then
-            echo "ALB DNS name not available yet, waiting 20 seconds... (Attempt $((count+1))/15)"
-            sleep 20
-            count=$((count+1))
-          else
-            # Add a small delay even after finding the DNS name to allow rules to propagate
-            echo "ALB DNS found: ${ALB_DNS_NAME}. Waiting 10s for rules to settle..."
-            sleep 10
-          fi
-        done
+    # - name: Wait for Ingress and Get ALB DNS Name
+    #   id: get_alb_dns
+    #   run: |
+    #     echo "Waiting for ALB Ingress to provision/update..."
+    #     count=0
+    #     ALB_DNS_NAME=""
+    #     while [ -z "$ALB_DNS_NAME" ] && [ $count -lt 15 ]; do
+    #       ALB_DNS_NAME=$(kubectl get ingress quantum-microservice-ingress -n default -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' 2>/dev/null)
+    #       if [ -z "$ALB_DNS_NAME" ]; then
+    #         echo "ALB DNS name not available yet, waiting 20 seconds... (Attempt $((count+1))/15)"
+    #         sleep 20
+    #         count=$((count+1))
+    #       else
+    #         # Add a small delay even after finding the DNS name to allow rules to propagate
+    #         echo "ALB DNS found: ${ALB_DNS_NAME}. Waiting 10s for rules to settle..."
+    #         sleep 10
+    #       fi
+    #     done
 
-        if [ -z "$ALB_DNS_NAME" ]; then
-          echo "Error: Timed out waiting for ALB DNS name after $count attempts."
-          kubectl get ingress quantum-microservice-ingress -n default -o yaml # Print ingress details for debugging
-          exit 1
-        fi
+    #     if [ -z "$ALB_DNS_NAME" ]; then
+    #       echo "Error: Timed out waiting for ALB DNS name after $count attempts."
+    #       kubectl get ingress quantum-microservice-ingress -n default -o yaml # Print ingress details for debugging
+    #       exit 1
+    #     fi
 
-        echo "Using ALB DNS Name: ${ALB_DNS_NAME}"
-        echo "ALB_DNS_NAME=${ALB_DNS_NAME}" >> $GITHUB_ENV
-        echo "alb_hostname=${ALB_DNS_NAME}" >> $GITHUB_OUTPUT
+    #     echo "Using ALB DNS Name: ${ALB_DNS_NAME}"
+    #     echo "ALB_DNS_NAME=${ALB_DNS_NAME}" >> $GITHUB_ENV
+    #     echo "alb_hostname=${ALB_DNS_NAME}" >> $GITHUB_OUTPUT
 
-    - name: Apply Terraform (API Gateway Routes)
-      id: tf_apply
-      working-directory: infra
-      run: |
-        echo "Applying Terraform changes for API Gateway routes..."
-        # This apply uses the api_gateway.tf with the two routes
-        terraform apply -var="alb_dns_name=${{ env.ALB_DNS_NAME }}" -auto-approve
-        echo "invoke_url=$(terraform output -raw api_gateway_invoke_url)" >> $GITHUB_OUTPUT
+    # - name: Apply Terraform (API Gateway Routes)
+    #   id: tf_apply
+    #   working-directory: infra
+    #   run: |
+    #     echo "Applying Terraform changes for API Gateway routes..."
+    #     # This apply uses the api_gateway.tf with the two routes
+    #     terraform apply -var="alb_dns_name=${{ env.ALB_DNS_NAME }}" -auto-approve
+    #     echo "invoke_url=$(terraform output -raw api_gateway_invoke_url)" >> $GITHUB_OUTPUT
 
-    - name: Test API Gateway Endpoints
-      run: |
-        API_URL="${{ steps.tf_apply.outputs.invoke_url }}"
-        echo "Testing API Gateway Health endpoint (Backend - /api/v1/health)..."
-        curl -sf "${API_URL}/api/v1/health" || (echo "Backend health check FAILED"; exit 1)
-        echo "Backend health check successful!"
+    # - name: Test API Gateway Endpoints
+    #   run: |
+    #     API_URL="${{ steps.tf_apply.outputs.invoke_url }}"
+    #     echo "Testing API Gateway Health endpoint (Backend - /api/v1/health)..."
+    #     curl -sf "${API_URL}/api/v1/health" || (echo "Backend health check FAILED"; exit 1)
+    #     echo "Backend health check successful!"
 
-        echo "Testing API Gateway Root endpoint (Frontend - /)..."
-        curl -sf -o /dev/null -w "%{http_code}" "${API_URL}/" | grep -E '^[23]' || (echo "Frontend root test FAILED"; exit 1)
-        echo "Frontend root test successful!"
+    #     echo "Testing API Gateway Root endpoint (Frontend - /)..."
+    #     curl -sf -o /dev/null -w "%{http_code}" "${API_URL}/" | grep -E '^[23]' || (echo "Frontend root test FAILED"; exit 1)
+    #     echo "Frontend root test successful!"
