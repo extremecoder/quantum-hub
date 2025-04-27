@@ -8,25 +8,30 @@ python-dotenv==1.0.0
 pydantic==2.6.1
 pydantic[email]>=2.5.0,<2.10.0
 pydantic-settings==2.1.0
+pydantic-extra-types==2.10.3
 greenlet==3.0.1
 
 # Authentication
-python-jose==3.3.0
+python-jose[cryptography]==3.3.0
 python-multipart==0.0.7
 passlib[bcrypt]==1.7.4
 bcrypt==4.1.2
 
 # Database & ORM
 sqlalchemy==2.0.26
+sqlalchemy[asyncio]
 alembic>=1.13.0
 asyncpg==0.29.0
+psycopg2-binary==2.9.10  # For PostgreSQL support
 aiosqlite==0.19.0  # For SQLite async support in testing
 
 # Networking & Integration
 httpx>=0.25.1
 requests>=2.28.0
+starlette>=0.27.0
 
 # Testing Dependencies
 pytest>=7.4.3
 pytest-asyncio>=0.21.1
 pytest-cov>=4.1.0
+pytest-mock>=3.10.0

@@ -149,6 +149,8 @@ The Quantum Hub is built on a modern microservices architecture with a clear sep
 - `PLANNING_BACKEND.md` - Backend architecture and design
 - `TASK.md` - Frontend implementation tasks
 - `TASK_BACKEND.md` - Backend implementation tasks
+- `API_DOCUMENTATION.md` - Detailed API documentation with examples
+- `TESTING.md` - Instructions for running tests
 
 ## Deployment
 
@@ -167,13 +169,22 @@ The Quantum Hub is designed to be deployed in a Kubernetes environment:
 
 ## API Documentation
 
+API documentation is available in multiple formats:
+
+### Swagger/OpenAPI UI
+
 API documentation is automatically generated using Swagger/OpenAPI:
 
-- API Gateway: http://localhost:8000/docs
-- Auth Service: http://localhost:8001/docs
-- User Service: http://localhost:8002/docs
-- Project Service: http://localhost:8003/docs
+- Auth Service: http://localhost:8001/api/v1/docs
+- Project Service: http://localhost:8002/api/v1/docs
 - Additional service endpoints documented in Swagger UI
+
+### Detailed Documentation
+
+For more detailed API documentation with examples, see:
+
+- [API Documentation](API_DOCUMENTATION.md) - Comprehensive guide with request/response examples
+- [Testing Guide](TESTING.md) - Instructions for testing the APIs
 
 ## Contributing
 

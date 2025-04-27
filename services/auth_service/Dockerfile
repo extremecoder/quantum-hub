@@ -18,7 +18,7 @@ ENV PYTHONPATH=/app
 
 # Service-specific environment variables
 ENV SERVICE_NAME=auth_service
-ENV MODULE_NAME=app.main
+ENV MODULE_NAME=services.auth_service.app.main
 
 # Run the service
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "services.auth_service.app.main:app", "--host", "0.0.0.0", "--port", "8000"]

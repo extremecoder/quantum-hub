@@ -11,8 +11,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from services.auth_service.app.core.database import get_db
 from services.auth_service.app.dependencies.users import get_current_active_user, get_current_user
-from services.auth_service.app.schemas.user import User, UserUpdate
-from services.auth_service.app.services.user_service import update_user
+from services.auth_service.app.models.schemas import UserResponse as User, UserUpdate
+from services.auth_service.app.repositories.user import update_user
 from services.shared.utils.api import create_response, raise_http_exception
 
 # Create router
@@ -25,10 +25,10 @@ async def read_users_me(
 ) -> Any:
     """
     Get current user profile.
-    
+
     Args:
         current_user: Current authenticated user.
-        
+
     Returns:
         User: Current user data.
     """
@@ -46,12 +46,12 @@ async def update_user_me(
 ) -> Any:
     """
     Update current user information.
-    
+
     Args:
         user_data: User update data.
         current_user: Current authenticated user.
         db: Database session dependency.
-        
+
     Returns:
         User: Updated user data.
     """
@@ -63,7 +63,7 @@ async def update_user_me(
             message=e.detail,
             status_code=e.status_code
         )
-        
+
     return create_response(
         data=updated_user,
         message="User profile updated successfully"
