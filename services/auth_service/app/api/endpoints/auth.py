@@ -126,7 +126,13 @@ async def login(
     """
     Authenticate and login a user.
 
+    This endpoint supports both JSON and form data formats for login credentials.
+
+    - For JSON: Send a POST request with Content-Type: application/json and a body containing username and password
+    - For form data: Send a POST request with Content-Type: application/x-www-form-urlencoded and form fields username and password
+
     Args:
+        request: The HTTP request object.
         login_data: JSON body with username and password.
         form_data: OAuth2 form with username and password.
         db: Database session dependency.

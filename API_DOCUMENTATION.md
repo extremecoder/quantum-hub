@@ -42,26 +42,26 @@ Response:
 
 ```json
 {
-  "message": "User registered successfully",
-  "data": {
-    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "token_type": "bearer",
-    "user": {
-      "id": "123e4567-e89b-12d3-a456-426614174000",
-      "username": "johndoe",
-      "email": "john.doe@example.com",
-      "full_name": "John Doe",
-      "is_active": true,
-      "is_provider": false,
-      "created_at": "2023-06-01T12:00:00Z",
-      "updated_at": "2023-06-01T12:00:00Z"
-    }
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "token_type": "bearer",
+  "user": {
+    "id": "123e4567-e89b-12d3-a456-426614174000",
+    "username": "johndoe",
+    "email": "john.doe@example.com",
+    "full_name": "John Doe",
+    "is_active": true,
+    "is_provider": false,
+    "created_at": "2023-06-01T12:00:00Z",
+    "updated_at": "2023-06-01T12:00:00Z"
   }
 }
 ```
 
 #### Login
 
+The login endpoint supports both form data and JSON formats.
+
+**Option 1: Form Data**
 ```http
 POST /auth/login
 Content-Type: application/x-www-form-urlencoded
@@ -69,24 +69,32 @@ Content-Type: application/x-www-form-urlencoded
 username=johndoe&password=securepassword123
 ```
 
+**Option 2: JSON**
+```http
+POST /auth/login
+Content-Type: application/json
+
+{
+  "username": "johndoe",
+  "password": "securepassword123"
+}
+```
+
 Response:
 
 ```json
 {
-  "message": "Login successful",
-  "data": {
-    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "token_type": "bearer",
-    "user": {
-      "id": "123e4567-e89b-12d3-a456-426614174000",
-      "username": "johndoe",
-      "email": "john.doe@example.com",
-      "full_name": "John Doe",
-      "is_active": true,
-      "is_provider": false,
-      "created_at": "2023-06-01T12:00:00Z",
-      "updated_at": "2023-06-01T12:00:00Z"
-    }
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "token_type": "bearer",
+  "user": {
+    "id": "123e4567-e89b-12d3-a456-426614174000",
+    "username": "johndoe",
+    "email": "john.doe@example.com",
+    "full_name": "John Doe",
+    "is_active": true,
+    "is_provider": false,
+    "created_at": "2023-06-01T12:00:00Z",
+    "updated_at": "2023-06-01T12:00:00Z"
   }
 }
 ```
@@ -102,20 +110,17 @@ Response:
 
 ```json
 {
-  "message": "Token refreshed successfully",
-  "data": {
-    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "token_type": "bearer",
-    "user": {
-      "id": "123e4567-e89b-12d3-a456-426614174000",
-      "username": "johndoe",
-      "email": "john.doe@example.com",
-      "full_name": "John Doe",
-      "is_active": true,
-      "is_provider": false,
-      "created_at": "2023-06-01T12:00:00Z",
-      "updated_at": "2023-06-01T12:00:00Z"
-    }
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "token_type": "bearer",
+  "user": {
+    "id": "123e4567-e89b-12d3-a456-426614174000",
+    "username": "johndoe",
+    "email": "john.doe@example.com",
+    "full_name": "John Doe",
+    "is_active": true,
+    "is_provider": false,
+    "created_at": "2023-06-01T12:00:00Z",
+    "updated_at": "2023-06-01T12:00:00Z"
   }
 }
 ```
@@ -131,8 +136,7 @@ Response:
 
 ```json
 {
-  "message": "Successfully logged out",
-  "data": null
+  "message": "Successfully logged out"
 }
 ```
 
@@ -151,8 +155,7 @@ Response:
 
 ```json
 {
-  "message": "If your email is registered, you will receive a password reset link",
-  "data": null
+  "message": "If your email is registered, you will receive a password reset link"
 }
 ```
 
@@ -171,8 +174,7 @@ Response:
 
 ```json
 {
-  "message": "Password has been reset successfully",
-  "data": null
+  "message": "Password has been reset successfully"
 }
 ```
 
@@ -186,8 +188,7 @@ Response:
 
 ```json
 {
-  "message": "Email verified successfully",
-  "data": null
+  "message": "Email verified successfully"
 }
 ```
 
@@ -212,17 +213,14 @@ Response:
 
 ```json
 {
-  "message": "User profile retrieved successfully",
-  "data": {
-    "id": "123e4567-e89b-12d3-a456-426614174000",
-    "username": "johndoe",
-    "email": "john.doe@example.com",
-    "full_name": "John Doe",
-    "is_active": true,
-    "is_provider": false,
-    "created_at": "2023-06-01T12:00:00Z",
-    "updated_at": "2023-06-01T12:00:00Z"
-  }
+  "id": "123e4567-e89b-12d3-a456-426614174000",
+  "username": "johndoe",
+  "email": "john.doe@example.com",
+  "full_name": "John Doe",
+  "is_active": true,
+  "is_provider": false,
+  "created_at": "2023-06-01T12:00:00Z",
+  "updated_at": "2023-06-01T12:00:00Z"
 }
 ```
 
@@ -243,17 +241,14 @@ Response:
 
 ```json
 {
-  "message": "User profile updated successfully",
-  "data": {
-    "id": "123e4567-e89b-12d3-a456-426614174000",
-    "username": "johndoe",
-    "email": "john.doe@example.com",
-    "full_name": "John Smith Doe",
-    "is_active": true,
-    "is_provider": true,
-    "created_at": "2023-06-01T12:00:00Z",
-    "updated_at": "2023-06-01T12:30:00Z"
-  }
+  "id": "123e4567-e89b-12d3-a456-426614174000",
+  "username": "johndoe",
+  "email": "john.doe@example.com",
+  "full_name": "John Smith Doe",
+  "is_active": true,
+  "is_provider": true,
+  "created_at": "2023-06-01T12:00:00Z",
+  "updated_at": "2023-06-01T12:30:00Z"
 }
 ```
 
@@ -284,15 +279,12 @@ Response:
 
 ```json
 {
-  "message": "API key created successfully",
-  "data": {
-    "id": "123e4567-e89b-12d3-a456-426614174000",
-    "name": "Production API Key",
-    "key": "qh_pk_1234567890abcdefghijklmnopqrstuvwxyz",
-    "created_at": "2023-06-01T12:00:00Z",
-    "expires_at": "2024-06-01T12:00:00Z",
-    "is_active": true
-  }
+  "id": "123e4567-e89b-12d3-a456-426614174000",
+  "name": "Production API Key",
+  "key": "qh_pk_1234567890abcdefghijklmnopqrstuvwxyz",
+  "created_at": "2023-06-01T12:00:00Z",
+  "expires_at": "2024-06-01T12:00:00Z",
+  "is_active": true
 }
 ```
 
@@ -306,27 +298,24 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 Response:
 
 ```json
-{
-  "message": "API keys retrieved successfully",
-  "data": [
-    {
-      "id": "123e4567-e89b-12d3-a456-426614174000",
-      "name": "Production API Key",
-      "key": "qh_pk_************wxyz",
-      "created_at": "2023-06-01T12:00:00Z",
-      "expires_at": "2024-06-01T12:00:00Z",
-      "is_active": true
-    },
-    {
-      "id": "223e4567-e89b-12d3-a456-426614174000",
-      "name": "Development API Key",
-      "key": "qh_dk_************abcd",
-      "created_at": "2023-06-01T12:30:00Z",
-      "expires_at": null,
-      "is_active": true
-    }
-  ]
-}
+[
+  {
+    "id": "123e4567-e89b-12d3-a456-426614174000",
+    "name": "Production API Key",
+    "key": "qh_pk_************wxyz",
+    "created_at": "2023-06-01T12:00:00Z",
+    "expires_at": "2024-06-01T12:00:00Z",
+    "is_active": true
+  },
+  {
+    "id": "223e4567-e89b-12d3-a456-426614174000",
+    "name": "Development API Key",
+    "key": "qh_dk_************abcd",
+    "created_at": "2023-06-01T12:30:00Z",
+    "expires_at": null,
+    "is_active": true
+  }
+]
 ```
 
 #### Get API Key
@@ -340,15 +329,12 @@ Response:
 
 ```json
 {
-  "message": "API key retrieved successfully",
-  "data": {
-    "id": "123e4567-e89b-12d3-a456-426614174000",
-    "name": "Production API Key",
-    "key": "qh_pk_************wxyz",
-    "created_at": "2023-06-01T12:00:00Z",
-    "expires_at": "2024-06-01T12:00:00Z",
-    "is_active": true
-  }
+  "id": "123e4567-e89b-12d3-a456-426614174000",
+  "name": "Production API Key",
+  "key": "qh_pk_************wxyz",
+  "created_at": "2023-06-01T12:00:00Z",
+  "expires_at": "2024-06-01T12:00:00Z",
+  "is_active": true
 }
 ```
 
@@ -369,15 +355,12 @@ Response:
 
 ```json
 {
-  "message": "API key updated successfully",
-  "data": {
-    "id": "123e4567-e89b-12d3-a456-426614174000",
-    "name": "Updated Production API Key",
-    "key": "qh_pk_************wxyz",
-    "created_at": "2023-06-01T12:00:00Z",
-    "expires_at": "2024-06-01T12:00:00Z",
-    "is_active": false
-  }
+  "id": "123e4567-e89b-12d3-a456-426614174000",
+  "name": "Updated Production API Key",
+  "key": "qh_pk_************wxyz",
+  "created_at": "2023-06-01T12:00:00Z",
+  "expires_at": "2024-06-01T12:00:00Z",
+  "is_active": false
 }
 ```
 
@@ -392,8 +375,7 @@ Response:
 
 ```json
 {
-  "message": "API key deleted successfully",
-  "data": null
+  "message": "API key deleted successfully"
 }
 ```
 
@@ -408,13 +390,10 @@ Response:
 
 ```json
 {
-  "message": "API usage statistics retrieved successfully",
-  "data": {
-    "total_requests": 1250,
-    "total_requests_limit": 50000,
-    "compute_time_hours": 5.75,
-    "compute_time_limit": 100.0
-  }
+  "total_requests": 1250,
+  "total_requests_limit": 50000,
+  "compute_time_hours": 5.75,
+  "compute_time_limit": 100.0
 }
 ```
 
@@ -655,8 +634,7 @@ All API endpoints return standardized error responses:
 ```json
 {
   "message": "Error message describing what went wrong",
-  "error": "error_code",
-  "data": null
+  "error": "error_code"
 }
 ```
 

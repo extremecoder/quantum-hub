@@ -29,7 +29,7 @@ app = FastAPI(
     ## Authentication
 
     * **Register**: Create a new user account
-    * **Login**: Authenticate and get access token
+    * **Login**: Authenticate and get access token (supports both JSON and form data)
     * **Refresh**: Refresh an existing token
     * **Logout**: Invalidate current token
     * **Reset Password**: Request and complete password reset
@@ -44,6 +44,10 @@ app = FastAPI(
 
     * **API Keys**: Create, list, update, and delete API keys
     * **Usage Statistics**: Get API usage statistics
+
+    ## Response Format
+
+    All successful responses return the data directly without wrapping. Error responses include a message and error code.
     """,
     version="1.0.0",
     openapi_url=f"{settings.API_V1_STR}/openapi.json",

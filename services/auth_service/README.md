@@ -12,9 +12,11 @@ The Auth Service is responsible for user authentication and authorization within
 
 ## API Endpoints
 
+All endpoints return data directly without wrapping. Error responses include a message and error code.
+
 ### Authentication
 - `POST /auth/register` - User registration
-- `POST /auth/login` - User login
+- `POST /auth/login` - User login (supports both JSON and form data)
 - `POST /auth/refresh` - Refresh token
 - `POST /auth/logout` - Logout
 - `POST /auth/reset-password` - Request password reset
