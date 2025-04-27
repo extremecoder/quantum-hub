@@ -6,7 +6,7 @@ metadata:
 data:
   PORT: "8001"
   LOG_LEVEL: "INFO"
-  MONGODB_URI: "mongodb://quantumhub:${MONGO_PASSWORD}@mongodb.quantum-hub.svc.cluster.local:27017/circuit-db?authSource=admin"
+  POSTGRES_URI: "postgresql://quantumhub:${POSTGRES_PASSWORD}@postgresql.quantum-hub.svc.cluster.local:5432/circuit-db"
   
 ---
 apiVersion: apps/v1
@@ -38,7 +38,7 @@ spec:
         - configMapRef:
             name: circuit-service-config
         - secretRef:
-            name: mongodb-credentials
+            name: postgres-credentials
         resources:
           limits:
             cpu: 500m
