@@ -21,9 +21,49 @@ logger = logging.getLogger(__name__)
 # Create FastAPI app
 app = FastAPI(
     title=settings.PROJECT_NAME,
+    description="""
+    # Quantum Hub Auth Service API
+
+    The Auth Service provides APIs for user authentication and API key management.
+
+    ## Authentication
+
+    * **Register**: Create a new user account
+    * **Login**: Authenticate and get access token
+    * **Refresh**: Refresh an existing token
+    * **Logout**: Invalidate current token
+    * **Reset Password**: Request and complete password reset
+    * **Email Verification**: Verify email address
+    * **OAuth**: Social authentication with Google
+
+    ## User Management
+
+    * **Profile**: Get and update user profile
+
+    ## API Key Management
+
+    * **API Keys**: Create, list, update, and delete API keys
+    * **Usage Statistics**: Get API usage statistics
+    """,
+    version="1.0.0",
     openapi_url=f"{settings.API_V1_STR}/openapi.json",
     docs_url=f"{settings.API_V1_STR}/docs",
     redoc_url=f"{settings.API_V1_STR}/redoc",
+    openapi_tags=[
+        {
+            "name": "authentication",
+            "description": "Authentication operations including registration, login, and token management",
+        },
+        {
+            "name": "users",
+            "description": "User profile management operations",
+        },
+        {
+            "name": "api-keys",
+            "description": "API key management operations",
+        },
+    ],
+    swagger_ui_parameters={"defaultModelsExpandDepth": -1}
 )
 
 # Set up CORS middleware
@@ -43,22 +83,23 @@ async def add_request_id(request: Request, call_next):
     # Get request ID from header or generate new one
     request_id = request.headers.get("X-Request-ID")
     request_id = set_request_id(request_id)
-    
+
     # Add request ID to response headers
     start_time = time.time()
     response = await call_next(request)
     process_time = time.time() - start_time
-    
+
     response.headers["X-Request-ID"] = request_id
     response.headers["X-Process-Time"] = str(process_time)
-    
+
     return response
 
 # Include API router
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
-# Health check endpoint
+# Health check endpoints - available at both root and API prefix
 @app.get("/health")
+@app.get(f"{settings.API_V1_STR}/health")
 async def health_check():
     """Health check endpoint for service monitoring."""
     return JSONResponse(
