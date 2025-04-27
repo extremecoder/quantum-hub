@@ -13,8 +13,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from services.auth_service.app.core.database import get_db
 from services.auth_service.app.dependencies.users import get_current_active_user
 from services.auth_service.app.models.schemas import (
-    ApiKeyResponse as ApiKey, ApiKeyCreate, ApiKeyUpdate, ApiKeyWithMaskedKey, ApiUsageStats, UserResponse as User
+    ApiKeyResponse as ApiKey, ApiKeyCreate, ApiKeyUpdate, ApiKeyWithMaskedKey, ApiUsageStats, UserResponse as UserSchema
 )
+from services.shared.database.models.user import User
 from services.auth_service.app.repositories.api_key import (
     create_api_key, get_api_keys_by_user_id as get_api_keys, get_api_key_by_id as get_api_key,
     update_api_key, delete_api_key
@@ -28,7 +29,7 @@ router = APIRouter()
 @router.post("", response_model=ApiKey, status_code=status.HTTP_201_CREATED)
 async def create_api_key_endpoint(
     key_data: ApiKeyCreate,
-    current_user: User = Depends(get_current_active_user),
+    current_user: UserSchema = Depends(get_current_active_user),
     db: AsyncSession = Depends(get_db)
 ) -> Any:
     """
@@ -60,7 +61,7 @@ async def create_api_key_endpoint(
 
 @router.get("", response_model=List[ApiKeyWithMaskedKey])
 async def get_api_keys_endpoint(
-    current_user: User = Depends(get_current_active_user),
+    current_user: UserSchema = Depends(get_current_active_user),
     db: AsyncSession = Depends(get_db)
 ) -> Any:
     """
@@ -102,7 +103,7 @@ async def get_api_keys_endpoint(
 @router.get("/{key_id}", response_model=ApiKeyWithMaskedKey)
 async def get_api_key_endpoint(
     key_id: UUID,
-    current_user: User = Depends(get_current_active_user),
+    current_user: UserSchema = Depends(get_current_active_user),
     db: AsyncSession = Depends(get_db)
 ) -> Any:
     """
@@ -139,7 +140,7 @@ async def get_api_key_endpoint(
 async def update_api_key_endpoint(
     key_id: UUID,
     key_data: ApiKeyUpdate,
-    current_user: User = Depends(get_current_active_user),
+    current_user: UserSchema = Depends(get_current_active_user),
     db: AsyncSession = Depends(get_db)
 ) -> Any:
     """
@@ -182,7 +183,7 @@ async def update_api_key_endpoint(
 @router.delete("/{key_id}")
 async def delete_api_key_endpoint(
     key_id: UUID,
-    current_user: User = Depends(get_current_active_user),
+    current_user: UserSchema = Depends(get_current_active_user),
     db: AsyncSession = Depends(get_db)
 ) -> Any:
     """
@@ -209,7 +210,7 @@ async def delete_api_key_endpoint(
 
 @router.get("/usage/stats", response_model=ApiUsageStats)
 async def get_api_usage_stats_endpoint(
-    current_user: User = Depends(get_current_active_user),
+    current_user: UserSchema = Depends(get_current_active_user),
     db: AsyncSession = Depends(get_db)
 ) -> Any:
     """

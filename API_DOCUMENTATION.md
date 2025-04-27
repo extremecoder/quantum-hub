@@ -593,6 +593,57 @@ Response:
 }
 ```
 
+#### Release Project with File Upload
+
+```http
+POST /projects/{project_id}/release/with-file
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+Content-Type: multipart/form-data
+
+name: Quantum Teleportation App
+description: A quantum teleportation application
+type: CIRCUIT
+version_number: 1.0.0
+sdk_used: QISKIT
+visibility: PRIVATE
+preferred_platform: IBM
+preferred_device_id: ibmq_qasm_simulator
+number_of_qubits: 3
+package_file: [binary file content]
+```
+
+Response:
+
+```json
+{
+  "message": "Project released successfully with file upload",
+  "data": {
+    "id": "323e4567-e89b-12d3-a456-426614174000",
+    "name": "Quantum Teleportation App",
+    "description": "A quantum teleportation application",
+    "type": "CIRCUIT",
+    "status": ["DRAFT"],
+    "visibility": "PRIVATE",
+    "created_at": "2023-06-01T13:00:00Z",
+    "updated_at": "2023-06-01T13:00:00Z"
+  }
+}
+```
+
+#### Download Package File
+
+```http
+GET /projects/versions/{version_id}/download
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+Response:
+
+Binary file content with appropriate headers:
+- `Content-Type: application/octet-stream`
+- `Content-Disposition: attachment; filename=package.zip`
+```
+
 ## Testing with Swagger UI
 
 You can test the APIs using the Swagger UI interface provided by FastAPI.

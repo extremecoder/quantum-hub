@@ -11,15 +11,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from services.auth_service.app.core.database import get_db
 from services.auth_service.app.dependencies.users import get_current_active_user, get_current_user
-from services.auth_service.app.models.schemas import UserResponse as User, UserUpdate
+from services.auth_service.app.models.schemas import UserResponse as UserSchema, UserUpdate
 from services.auth_service.app.repositories.user import update_user
 from services.shared.utils.api import create_response, raise_http_exception
+from services.shared.database.models.user import User
 
 # Create router
 router = APIRouter()
 
 
-@router.get("/me", response_model=User)
+@router.get("/me", response_model=UserSchema)
 async def read_users_me(
     current_user: User = Depends(get_current_active_user)
 ) -> Any:
@@ -35,7 +36,7 @@ async def read_users_me(
     return current_user
 
 
-@router.put("/me", response_model=User)
+@router.put("/me", response_model=UserSchema)
 async def update_user_me(
     user_data: UserUpdate,
     current_user: User = Depends(get_current_active_user),

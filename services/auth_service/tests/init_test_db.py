@@ -12,7 +12,9 @@ from sqlalchemy.sql import text
 # Add the project root to the Python path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../")))
 
-from services.auth_service.app.models.database import Base
+from services.shared.database.base import Base
+from services.auth_service.app.models.database import RefreshToken, PasswordReset, EmailVerification
+from services.shared.database.models.user import User, UserApiKey, UserProfile, UserSession
 
 
 # Database URL for the test database

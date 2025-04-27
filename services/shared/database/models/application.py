@@ -9,7 +9,7 @@ from typing import List, Optional
 import uuid
 
 from sqlalchemy import (
-    Boolean, Column, DateTime, ForeignKey, Integer, 
+    Boolean, Column, DateTime, ForeignKey, Integer,
     LargeBinary, String, Text
 )
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB, UUID
@@ -22,41 +22,41 @@ from ..enums import AppType, AppVisibility, LicenseType, SDKType, VersionStatus
 class Project(Base, BaseModel):
     """
     Project model representing user development projects.
-    
+
     This table stores information about development projects that users
     create to build and modify quantum applications.
     """
-    
+
     name = Column(String(100), nullable=False)
     description = Column(Text, nullable=True)
     user_id = Column(
-        UUID(as_uuid=True), 
-        ForeignKey("user.id", ondelete="CASCADE"), 
+        UUID(as_uuid=True),
+        ForeignKey("user.id", ondelete="CASCADE"),
         nullable=False
     )
     quantum_app_id = Column(
-        UUID(as_uuid=True), 
-        ForeignKey("quantum_app.id"), 
+        UUID(as_uuid=True),
+        ForeignKey("quantum_app.id"),
         nullable=True
     )
     repo = Column(String(255), nullable=True)
-    
+
     # Relationships
     user = relationship("User", backref="projects")
-    quantum_app = relationship("QuantumApp", backref="projects")
+    quantum_app = relationship("QuantumApp", back_populates="projects")
 
 
 class QuantumApp(Base, BaseModel):
     """
     Quantum App model representing quantum applications.
-    
+
     This table stores information about quantum applications that can be
     distributed through the registry or marketplace.
     """
-    
+
     developer_id = Column(
-        UUID(as_uuid=True), 
-        ForeignKey("user.id"), 
+        UUID(as_uuid=True),
+        ForeignKey("user.id"),
         nullable=False
     )
     name = Column(String(100), nullable=False)
@@ -65,8 +65,8 @@ class QuantumApp(Base, BaseModel):
     status = Column(ARRAY(String), nullable=False, default=["DRAFT"])
     visibility = Column(String(20), nullable=False, default=AppVisibility.PRIVATE.value)
     latest_version_id = Column(
-        UUID(as_uuid=True), 
-        ForeignKey("app_version.id"), 
+        UUID(as_uuid=True),
+        ForeignKey("app_version.id"),
         nullable=True
     )
     api_url = Column(String(255), nullable=True)
@@ -75,35 +75,37 @@ class QuantumApp(Base, BaseModel):
     license_url = Column(String(255), nullable=True)
     readme_content = Column(Text, nullable=True)
     repository_url = Column(String(255), nullable=True)
-    
+
     # Registry-specific fields
     is_in_registry = Column(Boolean, default=False)
     registry_published_at = Column(DateTime(timezone=True), nullable=True)
     featured_in_registry = Column(Boolean, default=False)
     registry_download_count = Column(Integer, default=0)
-    
+
     # Relationships
     developer = relationship("User", backref="developed_apps")
     latest_version = relationship(
-        "AppVersion", 
+        "AppVersion",
         foreign_keys=[latest_version_id],
         post_update=True
     )
-    projects = relationship("Project", backref="quantum_app")
-    marketplace_listing = relationship("MarketplaceListing", backref="quantum_app", uselist=False)
+    # Remove backref to avoid circular dependency
+    projects = relationship("Project", back_populates="quantum_app")
+    # Remove backref to avoid circular dependency with MarketplaceListing
+    marketplace_listing = relationship("MarketplaceListing", uselist=False, back_populates="quantum_app")
 
 
 class AppVersion(Base, BaseModel):
     """
     App Version model representing versions of quantum applications.
-    
+
     This table stores information about specific versions of quantum applications,
     including their packages, schemas, and performance metrics.
     """
-    
+
     quantum_app_id = Column(
-        UUID(as_uuid=True), 
-        ForeignKey("quantum_app.id", ondelete="CASCADE"), 
+        UUID(as_uuid=True),
+        ForeignKey("quantum_app.id", ondelete="CASCADE"),
         nullable=False
     )
     version_number = Column(String(20), nullable=False)
@@ -130,10 +132,10 @@ class AppVersion(Base, BaseModel):
     release_notes = Column(Text, nullable=True)
     is_latest = Column(Boolean, default=False)
     status = Column(String(20), default=VersionStatus.DRAFT.value)
-    
+
     # Relationships
     quantum_app = relationship(
-        "QuantumApp", 
+        "QuantumApp",
         backref="versions",
         foreign_keys=[quantum_app_id]
     )

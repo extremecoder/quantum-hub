@@ -9,7 +9,16 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 from sqlalchemy.sql import text
 
 from services.auth_service.app.db.session import engine
-from services.auth_service.app.models.database import Base
+from services.shared.database.base import Base
+
+# Import models to register them with SQLAlchemy
+# These imports are needed even if they're not directly used
+# noqa: F401 - imports are used for SQLAlchemy model registration
+from services.auth_service.app.models.database import RefreshToken, PasswordReset, EmailVerification  # noqa: F401
+from services.shared.database.models.user import User, UserApiKey, UserProfile, UserSession  # noqa: F401
+
+# Do not import other models to avoid circular dependencies
+# The Auth Service only needs the user-related models
 
 logger = logging.getLogger(__name__)
 
@@ -17,24 +26,24 @@ logger = logging.getLogger(__name__)
 async def create_tables(engine: AsyncEngine) -> None:
     """
     Create database tables.
-    
+
     Args:
         engine: Database engine.
     """
     async with engine.begin() as conn:
         # Drop all tables if they exist
         # await conn.run_sync(Base.metadata.drop_all)
-        
+
         # Create all tables
         await conn.run_sync(Base.metadata.create_all)
-    
+
     logger.info("Database tables created")
 
 
 async def check_connection() -> bool:
     """
     Check database connection.
-    
+
     Returns:
         bool: True if connection is successful, False otherwise.
     """

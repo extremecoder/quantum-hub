@@ -16,6 +16,8 @@ The Project Service is responsible for managing quantum development projects wit
 - `PUT /projects/{id}` - Update project
 - `DELETE /projects/{id}` - Delete project
 - `POST /projects/{id}/release` - Release project as app (creates QuantumApp)
+- `POST /projects/{id}/release/with-file` - Release project with file upload
+- `GET /projects/versions/{version_id}/download` - Download package file
 
 ## Getting Started
 

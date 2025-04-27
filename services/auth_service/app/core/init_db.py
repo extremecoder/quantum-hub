@@ -10,7 +10,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import sessionmaker
 
 from services.auth_service.app.core.config import settings
-from services.auth_service.app.models.database import Base
+from services.shared.database.base import Base
+
+# Import models to register them with SQLAlchemy
+# These imports are needed even if they're not directly used
+# noqa: F401 - imports are used for SQLAlchemy model registration
+from services.auth_service.app.models.database import RefreshToken, PasswordReset, EmailVerification  # noqa: F401
+from services.shared.database.models.user import User, UserApiKey, UserProfile, UserSession  # noqa: F401
+
+# Do not import other models to avoid circular dependencies
+# The Auth Service only needs the user-related models
 
 # Configure logging
 logger = logging.getLogger(__name__)

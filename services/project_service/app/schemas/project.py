@@ -68,6 +68,11 @@ class ProjectRelease(BaseModel):
     package_path: Optional[str] = Field(None, description="Path to the package file")
 
 
+class ProjectReleaseWithFile(ProjectRelease):
+    """Model for releasing a project as a quantum app with a file upload."""
+    package_data: Optional[bytes] = Field(None, description="Binary package data")
+
+
 class QuantumApp(BaseModel):
     """Model for quantum app response."""
     id: UUID

@@ -9,7 +9,7 @@ from sqlalchemy import select, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import text
 
-from services.auth_service.app.models.database import User
+from services.shared.database.models.user import User
 from services.shared.utils.password import hash_password
 
 
@@ -25,7 +25,7 @@ async def create_user(
 ) -> User:
     """
     Create a new user.
-    
+
     Args:
         db: Database session.
         username: Username.
@@ -35,17 +35,17 @@ async def create_user(
         is_active: Whether the user is active.
         is_provider: Whether the user is a provider.
         roles: User roles.
-        
+
     Returns:
         User: Created user.
     """
     # Hash the password
     hashed_password = hash_password(password)
-    
+
     # Set default roles if none provided
     if roles is None:
         roles = ["CONSUMER"]
-    
+
     # Create user
     user = User(
         username=username,
@@ -56,23 +56,23 @@ async def create_user(
         is_provider=is_provider,
         roles=roles
     )
-    
+
     # Add to database
     db.add(user)
     await db.commit()
     await db.refresh(user)
-    
+
     return user
 
 
 async def get_user_by_id(db: AsyncSession, user_id: UUID) -> Optional[User]:
     """
     Get a user by ID.
-    
+
     Args:
         db: Database session.
         user_id: User ID.
-        
+
     Returns:
         Optional[User]: User if found, None otherwise.
     """
@@ -83,11 +83,11 @@ async def get_user_by_id(db: AsyncSession, user_id: UUID) -> Optional[User]:
 async def get_user_by_username(db: AsyncSession, username: str) -> Optional[User]:
     """
     Get a user by username.
-    
+
     Args:
         db: Database session.
         username: Username.
-        
+
     Returns:
         Optional[User]: User if found, None otherwise.
     """
@@ -98,11 +98,11 @@ async def get_user_by_username(db: AsyncSession, username: str) -> Optional[User
 async def get_user_by_email(db: AsyncSession, email: str) -> Optional[User]:
     """
     Get a user by email.
-    
+
     Args:
         db: Database session.
         email: Email address.
-        
+
     Returns:
         Optional[User]: User if found, None otherwise.
     """
@@ -120,7 +120,7 @@ async def update_user(
 ) -> Optional[User]:
     """
     Update a user.
-    
+
     Args:
         db: Database session.
         user_id: User ID.
@@ -128,7 +128,7 @@ async def update_user(
         is_active: Whether the user is active.
         is_provider: Whether the user is a provider.
         roles: User roles.
-        
+
     Returns:
         Optional[User]: Updated user if found, None otherwise.
     """
@@ -142,11 +142,11 @@ async def update_user(
         values["is_provider"] = is_provider
     if roles is not None:
         values["roles"] = roles
-    
+
     if not values:
         # No updates to make
         return await get_user_by_id(db, user_id)
-    
+
     # Update user
     await db.execute(
         update(User)
@@ -154,7 +154,7 @@ async def update_user(
         .values(**values)
     )
     await db.commit()
-    
+
     # Get updated user
     return await get_user_by_id(db, user_id)
 
@@ -166,18 +166,18 @@ async def update_password(
 ) -> Optional[User]:
     """
     Update a user's password.
-    
+
     Args:
         db: Database session.
         user_id: User ID.
         password: Plain text password.
-        
+
     Returns:
         Optional[User]: Updated user if found, None otherwise.
     """
     # Hash the password
     hashed_password = hash_password(password)
-    
+
     # Update user
     await db.execute(
         update(User)
@@ -185,7 +185,7 @@ async def update_password(
         .values(hashed_password=hashed_password)
     )
     await db.commit()
-    
+
     # Get updated user
     return await get_user_by_id(db, user_id)
 
@@ -193,11 +193,11 @@ async def update_password(
 async def delete_user(db: AsyncSession, user_id: UUID) -> bool:
     """
     Delete a user.
-    
+
     Args:
         db: Database session.
         user_id: User ID.
-        
+
     Returns:
         bool: True if user was deleted, False otherwise.
     """
@@ -206,5 +206,5 @@ async def delete_user(db: AsyncSession, user_id: UUID) -> bool:
         .where(User.id == user_id)
     )
     await db.commit()
-    
+
     return result.rowcount > 0

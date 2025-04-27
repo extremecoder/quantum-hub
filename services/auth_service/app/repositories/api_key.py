@@ -9,7 +9,7 @@ from uuid import UUID
 from sqlalchemy import select, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from services.auth_service.app.models.database import UserApiKey
+from services.shared.database.models.user import UserApiKey
 from services.shared.utils.api_key import generate_api_key, calculate_expiry
 
 
@@ -21,22 +21,22 @@ async def create_api_key(
 ) -> UserApiKey:
     """
     Create a new API key.
-    
+
     Args:
         db: Database session.
         user_id: User ID.
         name: API key name.
         expires_days: Number of days until expiry. If None, no expiry.
-        
+
     Returns:
         UserApiKey: Created API key.
     """
     # Generate API key
     key = generate_api_key()
-    
+
     # Calculate expiry date
     expires_at = calculate_expiry(expires_days)
-    
+
     # Create API key
     api_key = UserApiKey(
         user_id=user_id,
@@ -44,23 +44,23 @@ async def create_api_key(
         key=key,
         expires_at=expires_at
     )
-    
+
     # Add to database
     db.add(api_key)
     await db.commit()
     await db.refresh(api_key)
-    
+
     return api_key
 
 
 async def get_api_key_by_id(db: AsyncSession, api_key_id: UUID) -> Optional[UserApiKey]:
     """
     Get an API key by ID.
-    
+
     Args:
         db: Database session.
         api_key_id: API key ID.
-        
+
     Returns:
         Optional[UserApiKey]: API key if found, None otherwise.
     """
@@ -71,11 +71,11 @@ async def get_api_key_by_id(db: AsyncSession, api_key_id: UUID) -> Optional[User
 async def get_api_key_by_key(db: AsyncSession, key: str) -> Optional[UserApiKey]:
     """
     Get an API key by key.
-    
+
     Args:
         db: Database session.
         key: API key.
-        
+
     Returns:
         Optional[UserApiKey]: API key if found, None otherwise.
     """
@@ -86,11 +86,11 @@ async def get_api_key_by_key(db: AsyncSession, key: str) -> Optional[UserApiKey]
 async def get_api_keys_by_user_id(db: AsyncSession, user_id: UUID) -> List[UserApiKey]:
     """
     Get all API keys for a user.
-    
+
     Args:
         db: Database session.
         user_id: User ID.
-        
+
     Returns:
         List[UserApiKey]: List of API keys.
     """
@@ -111,14 +111,14 @@ async def update_api_key(
 ) -> Optional[UserApiKey]:
     """
     Update an API key.
-    
+
     Args:
         db: Database session.
         api_key_id: API key ID.
         name: API key name.
         is_active: Whether the API key is active.
         expires_days: Number of days until expiry. If None, no change.
-        
+
     Returns:
         Optional[UserApiKey]: Updated API key if found, None otherwise.
     """
@@ -130,11 +130,11 @@ async def update_api_key(
         values["is_active"] = is_active
     if expires_days is not None:
         values["expires_at"] = calculate_expiry(expires_days)
-    
+
     if not values:
         # No updates to make
         return await get_api_key_by_id(db, api_key_id)
-    
+
     # Update API key
     await db.execute(
         update(UserApiKey)
@@ -142,7 +142,7 @@ async def update_api_key(
         .values(**values)
     )
     await db.commit()
-    
+
     # Get updated API key
     return await get_api_key_by_id(db, api_key_id)
 
@@ -150,11 +150,11 @@ async def update_api_key(
 async def delete_api_key(db: AsyncSession, api_key_id: UUID) -> bool:
     """
     Delete an API key.
-    
+
     Args:
         db: Database session.
         api_key_id: API key ID.
-        
+
     Returns:
         bool: True if API key was deleted, False otherwise.
     """
@@ -163,30 +163,30 @@ async def delete_api_key(db: AsyncSession, api_key_id: UUID) -> bool:
         .where(UserApiKey.id == api_key_id)
     )
     await db.commit()
-    
+
     return result.rowcount > 0
 
 
 async def is_api_key_valid(db: AsyncSession, key: str) -> bool:
     """
     Check if an API key is valid.
-    
+
     Args:
         db: Database session.
         key: API key.
-        
+
     Returns:
         bool: True if API key is valid, False otherwise.
     """
     api_key = await get_api_key_by_key(db, key)
-    
+
     if not api_key:
         return False
-    
+
     if not api_key.is_active:
         return False
-    
+
     if api_key.expires_at and api_key.expires_at < datetime.utcnow():
         return False
-    
+
     return True

@@ -16,7 +16,7 @@ from services.auth_service.app.core.database import get_db
 from services.auth_service.app.core.security import oauth2_scheme
 from services.auth_service.app.models.schemas import TokenPayload
 from services.auth_service.app.repositories.user import get_user_by_id
-from services.auth_service.app.models.database import User
+from services.shared.database.models.user import User
 
 
 async def get_current_user(

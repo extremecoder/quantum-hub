@@ -17,7 +17,9 @@ from sqlalchemy.pool import NullPool
 
 from services.auth_service.app.main import app
 from services.auth_service.app.core.database import get_db
-from services.auth_service.app.models.database import Base
+from services.shared.database.base import Base
+from services.auth_service.app.models.database import RefreshToken, PasswordReset, EmailVerification
+from services.shared.database.models.user import User, UserApiKey, UserProfile, UserSession
 from services.shared.utils.password import hash_password
 
 # Use PostgreSQL for testing
@@ -98,7 +100,7 @@ async def test_user(db_session: AsyncSession) -> object:
     Returns:
         User: Test user.
     """
-    from services.auth_service.app.models.database import User
+    from services.shared.database.models.user import User
     from services.auth_service.app.repositories.user import create_user
     from services.auth_service.app.models.schemas import UserCreate
 
@@ -149,7 +151,8 @@ async def test_api_key(db_session: AsyncSession, test_user) -> object:
     api_key = await create_api_key(
         db=db_session,
         user_id=test_user.id,
-        key_data=api_key_create
+        name=api_key_create.name,
+        expires_days=None
     )
 
     await db_session.commit()
@@ -168,14 +171,14 @@ async def token_headers(test_user) -> dict:
     Returns:
         dict: Headers with authorization token.
     """
-    from services.auth_service.app.repositories.token import create_access_token
+    from services.auth_service.app.core.security import create_access_token
+    from datetime import timedelta
 
     # Create access token
     access_token = create_access_token(
-        user_id=str(test_user.id),
-        username=test_user.username,
-        email=test_user.email,
-        roles=["CONSUMER", "DEVELOPER"]
+        subject=str(test_user.id),
+        expires_delta=timedelta(minutes=30),
+        additional_claims={"username": test_user.username}
     )
 
     # Create headers

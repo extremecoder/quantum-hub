@@ -19,7 +19,7 @@ from services.auth_service.app.core.database import get_db
 from services.auth_service.app.core.security import create_access_token
 from services.auth_service.app.dependencies.users import get_current_user
 from services.auth_service.app.models.schemas import TokenResponse, UserCreate, UserResponse, LoginRequest
-from services.auth_service.app.models.database import User
+from services.shared.database.models.user import User
 from services.auth_service.app.repositories.user import (
     get_user_by_email, get_user_by_username, update_user
 )
@@ -40,14 +40,19 @@ async def authenticate_user(db: AsyncSession, username: str, password: str) -> O
     Returns:
         Optional[User]: The authenticated user if successful, else None.
     """
+    print(f"Authenticating user: {username}")
     user = await get_user_by_username(db, username)
 
     if not user:
+        print(f"User not found: {username}")
         return None
 
+    print(f"User found: {user.username}, verifying password")
     if not verify_password(password, user.hashed_password):
+        print(f"Password verification failed for user: {username}")
         return None
 
+    print(f"Authentication successful for user: {username}")
     return user
 
 # Create router
@@ -143,33 +148,44 @@ async def login(
     Raises:
         HTTPException: If authentication fails.
     """
+    print(f"Login request received - Content-Type: {request.headers.get('content-type')}")
+    print(f"Login data: {login_data}")
+    print(f"Form data: {form_data}")
+
     # Determine which authentication method to use
     try:
         if login_data:
+            print("Using login_data")
             username = login_data.username
             password = login_data.password
         elif form_data:
+            print("Using form_data")
             username = form_data.username
             password = form_data.password
         else:
             # Try to get JSON data from request body
             try:
+                print("Trying to parse request body as JSON")
                 body = await request.json()
+                print(f"Request body: {body}")
                 username = body.get("username")
                 password = body.get("password")
                 if not username or not password:
+                    print("Missing username or password in JSON body")
                     raise_http_exception(
                         message="Username and password are required",
                         status_code=status.HTTP_400_BAD_REQUEST,
                         error="missing_credentials"
                     )
-            except:
+            except Exception as json_error:
+                print(f"Error parsing JSON body: {str(json_error)}")
                 raise_http_exception(
                     message="No login credentials provided",
                     status_code=status.HTTP_400_BAD_REQUEST,
                     error="missing_credentials"
                 )
     except Exception as e:
+        print(f"Error processing login request: {str(e)}")
         raise_http_exception(
             message=f"Error processing login request: {str(e)}",
             status_code=status.HTTP_400_BAD_REQUEST,

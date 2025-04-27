@@ -22,7 +22,7 @@ async function runTest() {
   try {
     // Step 1: Sign in
     console.log('\n=== Step 1: Sign in ===');
-    await page.goto('http://localhost:3000/auth/signin');
+    await page.goto('http://localhost:3001/auth/signin');
     await new Promise(resolve => setTimeout(resolve, 2000));
 
     // Fill in the form
@@ -154,7 +154,7 @@ async function runTest() {
 
     // Try to access a protected page
     console.log('\n=== Step 5: Try to access protected page ===');
-    await page.goto('http://localhost:3000/dashboard');
+    await page.goto('http://localhost:3001/dashboard');
     await new Promise(resolve => setTimeout(resolve, 2000));
 
     // Take a screenshot

@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import HTTPException, status
 
 from services.auth_service.app.models.schemas import UserCreate
-from services.auth_service.app.models.database import User
+from services.shared.database.models.user import User
 from services.auth_service.app.repositories.user import (
     create_user as repo_create_user,
     get_user_by_email,
@@ -19,14 +19,14 @@ from services.auth_service.app.repositories.user import (
 async def create_user(db: AsyncSession, user_data: UserCreate) -> User:
     """
     Create a new user from UserCreate schema.
-    
+
     Args:
         db: Database session.
         user_data: User creation data.
-        
+
     Returns:
         User: Created user.
-        
+
     Raises:
         HTTPException: If user creation fails.
     """
@@ -37,7 +37,7 @@ async def create_user(db: AsyncSession, user_data: UserCreate) -> User:
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Email already registered"
         )
-    
+
     # Check if username already exists
     existing_username = await get_user_by_username(db, user_data.username)
     if existing_username:
@@ -45,7 +45,7 @@ async def create_user(db: AsyncSession, user_data: UserCreate) -> User:
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Username already taken"
         )
-    
+
     # Create user using repository function
     return await repo_create_user(
         db=db,
