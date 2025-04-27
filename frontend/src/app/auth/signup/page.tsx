@@ -73,15 +73,34 @@ export default function SignUp() {
             // Make sure we store the username in localStorage again
             localStorage.setItem('username', formData.username);
             localStorage.setItem('isAuthenticated', 'true');
-            
+
             // Force navigation to dashboard
             window.location.href = '/dashboard';
           }
         }
       }
     } catch (error: any) {
-      setError(error.response?.data?.detail || 'An error occurred during registration');
       console.error('Registration error:', error);
+
+      // Handle different error formats
+      if (error.response?.data?.detail) {
+        // If detail is an array (validation errors)
+        if (Array.isArray(error.response.data.detail)) {
+          // Extract the first error message
+          const firstError = error.response.data.detail[0];
+          setError(firstError.msg || 'Validation error');
+        }
+        // If detail is a string
+        else if (typeof error.response.data.detail === 'string') {
+          setError(error.response.data.detail);
+        }
+        // If detail is an object
+        else {
+          setError('Invalid input. Please check your information.');
+        }
+      } else {
+        setError('An error occurred during registration. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
