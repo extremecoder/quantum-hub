@@ -32,10 +32,7 @@ async def read_users_me(
     Returns:
         User: Current user data.
     """
-    return create_response(
-        data=current_user,
-        message="User profile retrieved successfully"
-    )
+    return current_user
 
 
 @router.put("/me", response_model=User)
@@ -56,7 +53,10 @@ async def update_user_me(
         User: Updated user data.
     """
     try:
-        updated_user = await update_user(db, current_user, user_data)
+        updated_user = await update_user(db, current_user.id,
+                                      full_name=user_data.full_name,
+                                      is_active=user_data.is_active,
+                                      is_provider=user_data.is_provider)
     except HTTPException as e:
         # Re-raise with standard format
         raise_http_exception(
@@ -64,7 +64,4 @@ async def update_user_me(
             status_code=e.status_code
         )
 
-    return create_response(
-        data=updated_user,
-        message="User profile updated successfully"
-    )
+    return updated_user

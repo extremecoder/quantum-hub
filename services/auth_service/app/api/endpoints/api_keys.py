@@ -43,17 +43,19 @@ async def create_api_key_endpoint(
         ApiKey: The created API key.
     """
     try:
-        api_key = await create_api_key(db, current_user.id, key_data)
+        api_key = await create_api_key(
+            db=db,
+            user_id=current_user.id,
+            name=key_data.name,
+            expires_days=key_data.expires_days
+        )
     except Exception as e:
         raise_http_exception(
             message=f"Failed to create API key: {str(e)}",
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
-    return create_response(
-        data=api_key,
-        message="API key created successfully"
-    )
+    return api_key
 
 
 @router.get("", response_model=List[ApiKeyWithMaskedKey])
@@ -89,10 +91,7 @@ async def get_api_keys_endpoint(
 
             masked_keys.append(key_dict)
 
-        return create_response(
-            data=masked_keys,
-            message="API keys retrieved successfully"
-        )
+        return masked_keys
     except Exception as e:
         raise_http_exception(
             message=f"Failed to retrieve API keys: {str(e)}",
@@ -117,7 +116,7 @@ async def get_api_key_endpoint(
     Returns:
         ApiKeyWithMaskedKey: The API key with masked key value.
     """
-    api_key = await get_api_key(db, current_user.id, key_id)
+    api_key = await get_api_key(db, key_id)
 
     if not api_key:
         raise_http_exception(
@@ -133,10 +132,7 @@ async def get_api_key_endpoint(
         prefix_str = "_".join(prefix)
         key_dict["key"] = f"{prefix_str}_{'*' * 12}{original_key[-4:]}"
 
-    return create_response(
-        data=key_dict,
-        message="API key retrieved successfully"
-    )
+    return key_dict
 
 
 @router.put("/{key_id}", response_model=ApiKeyWithMaskedKey)
@@ -158,7 +154,13 @@ async def update_api_key_endpoint(
     Returns:
         ApiKeyWithMaskedKey: The updated API key with masked key value.
     """
-    api_key = await update_api_key(db, current_user.id, key_id, key_data)
+    api_key = await update_api_key(
+        db=db,
+        api_key_id=key_id,
+        name=key_data.name,
+        is_active=key_data.is_active,
+        expires_days=key_data.expires_days
+    )
 
     if not api_key:
         raise_http_exception(
@@ -174,10 +176,7 @@ async def update_api_key_endpoint(
         prefix_str = "_".join(prefix)
         key_dict["key"] = f"{prefix_str}_{'*' * 12}{original_key[-4:]}"
 
-    return create_response(
-        data=key_dict,
-        message="API key updated successfully"
-    )
+    return key_dict
 
 
 @router.delete("/{key_id}")
@@ -197,7 +196,7 @@ async def delete_api_key_endpoint(
     Returns:
         dict: Success message.
     """
-    result = await delete_api_key(db, current_user.id, key_id)
+    result = await delete_api_key(db, key_id)
 
     if not result:
         raise_http_exception(
@@ -205,10 +204,7 @@ async def delete_api_key_endpoint(
             status_code=status.HTTP_404_NOT_FOUND
         )
 
-    return create_response(
-        data=None,
-        message="API key deleted successfully"
-    )
+    return {"message": "API key deleted successfully"}
 
 
 @router.get("/usage/stats", response_model=ApiUsageStats)
@@ -235,10 +231,7 @@ async def get_api_usage_stats_endpoint(
             compute_time_limit=10.0
         )
 
-        return create_response(
-            data=stats,
-            message="API usage statistics retrieved successfully"
-        )
+        return stats
     except Exception as e:
         raise_http_exception(
             message=f"Failed to retrieve API usage statistics: {str(e)}",

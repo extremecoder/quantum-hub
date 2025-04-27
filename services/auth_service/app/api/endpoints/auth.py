@@ -9,7 +9,7 @@ import secrets
 from datetime import datetime, timedelta
 from typing import Any, Dict, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks, Body
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks, Body, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 from pydantic import EmailStr
@@ -18,11 +18,12 @@ from services.auth_service.app.core.config import settings
 from services.auth_service.app.core.database import get_db
 from services.auth_service.app.core.security import create_access_token
 from services.auth_service.app.dependencies.users import get_current_user
-from services.auth_service.app.models.schemas import TokenResponse, UserCreate, UserResponse
+from services.auth_service.app.models.schemas import TokenResponse, UserCreate, UserResponse, LoginRequest
 from services.auth_service.app.models.database import User
 from services.auth_service.app.repositories.user import (
-    create_user, get_user_by_email, get_user_by_username, update_user
+    get_user_by_email, get_user_by_username, update_user
 )
+from services.auth_service.app.services.user_service import create_user
 from services.shared.utils.password import verify_password
 from services.shared.utils.api import create_response, raise_http_exception
 
@@ -71,9 +72,25 @@ async def register(
     Raises:
         HTTPException: If registration fails.
     """
+    # Check if email already exists
+    existing_email = await get_user_by_email(db, user_data.email)
+    if existing_email:
+        raise_http_exception(
+            message="Email already registered",
+            status_code=status.HTTP_400_BAD_REQUEST
+        )
+
+    # Check if username already exists
+    existing_username = await get_user_by_username(db, user_data.username)
+    if existing_username:
+        raise_http_exception(
+            message="Username already taken",
+            status_code=status.HTTP_400_BAD_REQUEST
+        )
+
     # Create the user
     try:
-        user = await create_user(db, user_data)
+        user = await create_user(db=db, user_data=user_data)
     except HTTPException as e:
         # Re-raise with standard format
         raise_http_exception(
@@ -92,25 +109,25 @@ async def register(
     )
 
     # Return token response
-    return create_response(
-        data={
-            "access_token": access_token,
-            "token_type": "bearer",
-            "user": user
-        },
-        message="User registered successfully"
-    )
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "user": user
+    }
 
 
 @router.post("/login", response_model=TokenResponse)
 async def login(
-    form_data: OAuth2PasswordRequestForm = Depends(),
+    request: Request,
+    login_data: LoginRequest = None,
+    form_data: OAuth2PasswordRequestForm = Depends(None),
     db: AsyncSession = Depends(get_db)
 ) -> Any:
     """
     Authenticate and login a user.
 
     Args:
+        login_data: JSON body with username and password.
         form_data: OAuth2 form with username and password.
         db: Database session dependency.
 
@@ -120,8 +137,41 @@ async def login(
     Raises:
         HTTPException: If authentication fails.
     """
+    # Determine which authentication method to use
+    try:
+        if login_data:
+            username = login_data.username
+            password = login_data.password
+        elif form_data:
+            username = form_data.username
+            password = form_data.password
+        else:
+            # Try to get JSON data from request body
+            try:
+                body = await request.json()
+                username = body.get("username")
+                password = body.get("password")
+                if not username or not password:
+                    raise_http_exception(
+                        message="Username and password are required",
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        error="missing_credentials"
+                    )
+            except:
+                raise_http_exception(
+                    message="No login credentials provided",
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    error="missing_credentials"
+                )
+    except Exception as e:
+        raise_http_exception(
+            message=f"Error processing login request: {str(e)}",
+            status_code=status.HTTP_400_BAD_REQUEST,
+            error="login_error"
+        )
+
     # Authenticate user
-    user = await authenticate_user(db, form_data.username, form_data.password)
+    user = await authenticate_user(db, username, password)
 
     if not user:
         raise_http_exception(
@@ -149,14 +199,11 @@ async def login(
     )
 
     # Return token response
-    return create_response(
-        data={
-            "access_token": access_token,
-            "token_type": "bearer",
-            "user": user
-        },
-        message="Login successful"
-    )
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "user": user
+    }
 
 
 @router.post("/refresh", response_model=TokenResponse)
@@ -183,14 +230,11 @@ async def refresh_token(
     )
 
     # Return token response
-    return create_response(
-        data={
-            "access_token": access_token,
-            "token_type": "bearer",
-            "user": current_user
-        },
-        message="Token refreshed successfully"
-    )
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "user": current_user
+    }
 
 
 @router.post("/google", response_model=TokenResponse)
@@ -203,12 +247,16 @@ async def google_login() -> Any:
     """
     # In a real implementation, this would generate a redirect URL to Google's OAuth page
     # For now, return a placeholder
-    return create_response(
-        data={
-            "redirect_url": f"https://accounts.google.com/o/oauth2/auth?client_id={settings.GOOGLE_CLIENT_ID}"
-        },
-        message="Google OAuth flow initialized"
-    )
+    return {
+        "access_token": "placeholder_token",
+        "token_type": "bearer",
+        "user": {
+            "id": "placeholder_id",
+            "username": "google_user",
+            "email": "google_user@example.com",
+            "full_name": "Google User"
+        }
+    }
 
 
 @router.post("/logout")
@@ -238,10 +286,7 @@ async def logout(
     # 2. Add to blacklist with expiration time
     # 3. Update user session record
 
-    return create_response(
-        data=None,
-        message="Successfully logged out"
-    )
+    return {"message": "Successfully logged out"}
 
 
 @router.post("/reset-password")
@@ -288,15 +333,9 @@ async def request_password_reset(
 
     # For development, return the token directly
     if settings.ENVIRONMENT == "development":
-        return create_response(
-            data={"reset_token": reset_token},
-            message="Password reset requested. In production, an email would be sent."
-        )
+        return {"reset_token": reset_token, "message": "Password reset requested. In production, an email would be sent."}
 
-    return create_response(
-        data=None,
-        message="If your email is registered, you will receive a password reset link"
-    )
+    return {"message": "If your email is registered, you will receive a password reset link"}
 
 
 @router.post("/reset-password/{token}")
@@ -324,10 +363,7 @@ async def reset_password(
     # For now, return a placeholder response
     # TODO: Implement actual password reset
 
-    return create_response(
-        data=None,
-        message="Password has been reset successfully"
-    )
+    return {"message": "Password has been reset successfully"}
 
 
 @router.get("/verify/{token}")
@@ -354,10 +390,7 @@ async def verify_email(
     # For now, return a placeholder response
     # TODO: Implement actual email verification
 
-    return create_response(
-        data=None,
-        message="Email verified successfully"
-    )
+    return {"message": "Email verified successfully"}
 
 
 @router.get("/google/callback", response_model=TokenResponse)
@@ -382,16 +415,13 @@ async def google_callback(
     # 4. Create and return a token
 
     # For now, just return a placeholder response
-    return create_response(
-        data={
-            "access_token": "placeholder_token",
-            "token_type": "bearer",
-            "user": {
-                "id": "placeholder_id",
-                "username": "google_user",
-                "email": "google_user@example.com",
-                "full_name": "Google User"
-            }
-        },
-        message="Google authentication successful"
-    )
+    return {
+        "access_token": "placeholder_token",
+        "token_type": "bearer",
+        "user": {
+            "id": "placeholder_id",
+            "username": "google_user",
+            "email": "google_user@example.com",
+            "full_name": "Google User"
+        }
+    }

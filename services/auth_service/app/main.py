@@ -112,7 +112,15 @@ async def health_check():
 async def startup_event():
     """Initialize the application on startup."""
     logger.info("Auth Service starting up")
-    # In the future, this could initialize database connections, etc.
+
+    # Initialize database
+    try:
+        from services.auth_service.app.core.init_db import init_db
+        await init_db()
+        logger.info("Database initialized successfully")
+    except Exception as e:
+        logger.error(f"Error initializing database: {str(e)}")
+        raise
 
 # Shutdown event
 @app.on_event("shutdown")

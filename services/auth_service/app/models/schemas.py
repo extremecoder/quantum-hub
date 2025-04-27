@@ -80,6 +80,13 @@ class TokenPayload(BaseModel):
     exp: Optional[int] = None
 
 
+class LoginRequest(BaseModel):
+    """Login request schema."""
+
+    username: str
+    password: str
+
+
 class MessageResponse(BaseModel):
     """Message response schema."""
 
