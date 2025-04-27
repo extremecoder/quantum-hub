@@ -17,23 +17,32 @@ const handler = NextAuth({
       },
       async authorize(credentials) {
         if (!credentials?.username || !credentials?.password) {
+          console.log("Missing credentials");
           return null;
         }
 
         try {
-          // Use the proxy endpoint to avoid CORS issues
-          const response = await axios.post('/api/proxy/token', {
+          // Use absolute URL for server-side requests
+          const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
+          const tokenUrl = `${baseUrl}/api/proxy/token`;
+
+          console.log("Fetching token from:", tokenUrl);
+
+          const response = await axios.post(tokenUrl, {
             username: credentials.username,
             password: credentials.password,
           });
+
+          console.log('Auth response:', response.data);
 
           if (response.data.access_token) {
             // Return user data with token
             return {
               id: response.data.user?.id || 'user-id',
-              name: response.data.user?.fullName || response.data.user?.username,
+              name: response.data.user?.full_name || response.data.user?.username,
               email: response.data.user?.email,
               access_token: response.data.access_token,
+              user: response.data.user,
             };
           }
           return null;

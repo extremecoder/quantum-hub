@@ -1,6 +1,6 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
+import { useSession, signOut } from 'next-auth/react';
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 
@@ -18,19 +18,19 @@ export default function UserMenu() {
   useEffect(() => {
     // Direct path check for authentication
     const isPathAuthenticated = pathname?.startsWith('/dashboard') || pathname?.startsWith('/settings');
-    
+
     // Check localStorage
     const localStorageAuth = typeof window !== 'undefined' ? localStorage.getItem('isAuthenticated') === 'true' : false;
-    
+
     // Get username from localStorage
     const storedUsername = typeof window !== 'undefined' ? localStorage.getItem('username') : null;
-    
+
     if (storedUsername) {
       setUsername(storedUsername);
     } else if (session?.user?.name) {
       setUsername(session.user.name);
     }
-    
+
     // Set authentication state
     setIsAuthenticated(isPathAuthenticated || session !== null || localStorageAuth);
   }, [session, pathname]);
@@ -41,13 +41,25 @@ export default function UserMenu() {
   };
 
   // Sign out function
-  const handleSignOut = () => {
+  const handleSignOut = async () => {
+    // Clear localStorage
     if (typeof window !== 'undefined') {
       localStorage.removeItem('isAuthenticated');
       localStorage.removeItem('username');
       localStorage.removeItem('actualUsername');
-      
-      // Direct navigation
+      localStorage.removeItem('quantum_hub_auth_status');
+    }
+
+    try {
+      // Use NextAuth's signOut function
+      const data = await signOut({ redirect: false, callbackUrl: '/' });
+      console.log('Sign out successful:', data);
+
+      // Redirect to home page
+      window.location.href = data.url || '/';
+    } catch (error) {
+      console.error('Error signing out:', error);
+      // Fallback to direct navigation
       window.location.href = '/';
     }
   };
@@ -102,7 +114,7 @@ export default function UserMenu() {
             <p className="text-sm text-gray-500 dark:text-gray-400">Signed in as</p>
             <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{username}</p>
           </div>
-          
+
           <a
             href="/dashboard"
             className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -110,7 +122,23 @@ export default function UserMenu() {
           >
             Dashboard
           </a>
-          
+
+          <a
+            href="/dashboard/profile"
+            className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+            onClick={() => setDropdownOpen(false)}
+          >
+            Profile
+          </a>
+
+          <a
+            href="/dashboard/api-keys"
+            className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+            onClick={() => setDropdownOpen(false)}
+          >
+            API Keys
+          </a>
+
           <a
             href="/settings"
             className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -118,9 +146,9 @@ export default function UserMenu() {
           >
             Settings
           </a>
-          
+
           <div className="border-t border-gray-200 dark:border-gray-700"></div>
-          
+
           <button
             onClick={handleSignOut}
             className="block w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700"

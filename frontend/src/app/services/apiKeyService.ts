@@ -4,7 +4,7 @@
 import axios from 'axios';
 import { getSession } from 'next-auth/react';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_URL = process.env.NEXT_PUBLIC_AUTH_SERVICE_URL || 'http://localhost:8001/api/v1';
 
 export interface ApiKey {
   id: string;
@@ -70,7 +70,7 @@ const getAuthHeaders = async () => {
         'Content-Type': 'application/json',
       };
     }
-    
+
     // Fallback for demo
     return {
       'Content-Type': 'application/json',
@@ -90,14 +90,17 @@ const getAuthHeaders = async () => {
 export const getApiKeys = async (): Promise<ApiKey[]> => {
   try {
     const headers = await getAuthHeaders();
+    console.log('Fetching API keys from:', `${API_URL}/api-keys`);
     const response = await axios.get(`${API_URL}/api-keys`, {
       headers,
       withCredentials: true,
     });
+
+    // The response is now directly the array of API keys
     return response.data;
   } catch (error) {
     console.error('Error fetching API keys from server:', error);
-    
+
     // Return the in-memory demo data
     return demoApiKeys;
   }
@@ -109,21 +112,24 @@ export const getApiKeys = async (): Promise<ApiKey[]> => {
 export const createApiKey = async (apiKeyData: ApiKeyCreate): Promise<ApiKey> => {
   try {
     const headers = await getAuthHeaders();
+    console.log('Creating API key at:', `${API_URL}/api-keys`);
     const response = await axios.post(`${API_URL}/api-keys`, apiKeyData, {
       headers,
       withCredentials: true,
     });
+
+    // The response is now directly the created API key
     return response.data;
   } catch (error) {
     console.error('Error creating API key:', error);
-    
+
     // Generate a mock key for demo
-    const keyPrefix = apiKeyData.name.toLowerCase().includes('prod') ? 'qh_pk' : 
+    const keyPrefix = apiKeyData.name.toLowerCase().includes('prod') ? 'qh_pk' :
                     apiKeyData.name.toLowerCase().includes('dev') ? 'qh_dk' : 'qh_tk';
-    
+
     // Generate a random suffix for the key
     const randomSuffix = Math.random().toString(36).substring(2, 10);
-    
+
     const newKey: ApiKey = {
       id: `mock-key-${Date.now()}`,
       key: `${keyPrefix}_${randomSuffix}`,
@@ -132,10 +138,10 @@ export const createApiKey = async (apiKeyData: ApiKeyCreate): Promise<ApiKey> =>
       expires_at: apiKeyData.expires_at || null,
       is_active: true
     };
-    
+
     // Add to our in-memory demo data
     demoApiKeys = [newKey, ...demoApiKeys];
-    
+
     return newKey;
   }
 };
@@ -152,9 +158,9 @@ export const revokeApiKey = async (keyId: string): Promise<void> => {
     });
   } catch (error) {
     console.error('Error revoking API key:', error);
-    
+
     // For demo, update our in-memory data
-    demoApiKeys = demoApiKeys.map(key => 
+    demoApiKeys = demoApiKeys.map(key =>
       key.id === keyId ? { ...key, is_active: false } : key
     );
   }
@@ -166,14 +172,17 @@ export const revokeApiKey = async (keyId: string): Promise<void> => {
 export const getApiUsageStats = async (): Promise<ApiUsageStats> => {
   try {
     const headers = await getAuthHeaders();
+    console.log('Fetching API usage stats from:', `${API_URL}/api-keys/usage/stats`);
     const response = await axios.get(`${API_URL}/api-keys/usage/stats`, {
       headers,
       withCredentials: true,
     });
+
+    // The response is now directly the API usage stats
     return response.data;
   } catch (error) {
     console.error('Error fetching API usage stats:', error);
-    
+
     // Return demo stats
     return {
       total_requests: 25421,

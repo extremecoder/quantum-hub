@@ -1,15 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { 
-  ChartBarIcon, 
-  ClockIcon, 
-  CogIcon, 
-  CollectionIcon, 
-  ServerIcon, 
+import {
+  ChartBarIcon,
+  ClockIcon,
+  CogIcon,
+  CollectionIcon,
+  ServerIcon,
   BadgeCheckIcon,
-  ExclamationCircleIcon, 
+  ExclamationCircleIcon,
   PauseIcon,
   DocumentAddIcon,
   KeyIcon,
@@ -86,9 +88,9 @@ const statusIcons = {
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', { 
-    month: 'short', 
-    day: 'numeric', 
+  return date.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
     year: 'numeric',
     hour: '2-digit',
     minute: '2-digit'
@@ -111,6 +113,33 @@ import JobManagement from '../components/dashboard/JobManagement';
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState<DashboardTab>(DashboardTab.MyApplications);
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/auth/signin');
+    }
+  }, [status, router]);
+
+  // Show loading state while checking authentication
+  if (status === 'loading') {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="animate-pulse flex flex-col space-y-4">
+          <div className="h-4 bg-gray-200 rounded dark:bg-gray-700 w-3/4"></div>
+          <div className="h-4 bg-gray-200 rounded dark:bg-gray-700 w-1/2"></div>
+          <div className="h-4 bg-gray-200 rounded dark:bg-gray-700 w-2/3"></div>
+        </div>
+      </div>
+    );
+  }
+
+  // If not authenticated, don't render the dashboard
+  if (status === 'unauthenticated') {
+    return null;
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -122,7 +151,7 @@ export default function Dashboard() {
           </p>
         </div>
         <div className="flex space-x-4">
-          <Link 
+          <Link
             href="/develop"
             className="btn-secondary inline-flex items-center text-sm"
           >
@@ -138,7 +167,7 @@ export default function Dashboard() {
           </Link>
         </div>
       </div>
-      
+
       {/* Dashboard Navigation */}
       <div className="border-b border-gray-200 dark:border-gray-700 mb-8">
         <nav className="-mb-px flex space-x-8">
@@ -157,7 +186,7 @@ export default function Dashboard() {
           ))}
         </nav>
       </div>
-      
+
       {/* My Applications Tab */}
       {activeTab === DashboardTab.MyApplications && (
         <div>
@@ -174,7 +203,7 @@ export default function Dashboard() {
               <h3 className="text-2xl font-bold text-gray-900 dark:text-white">12</h3>
               <p className="text-sm text-gray-500 dark:text-gray-400">Total Applications</p>
             </div>
-            
+
             <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
               <div className="flex justify-between items-start mb-4">
                 <div className="p-3 bg-blue-100 rounded-lg dark:bg-blue-900">
@@ -189,7 +218,7 @@ export default function Dashboard() {
               <h3 className="text-2xl font-bold text-gray-900 dark:text-white">1,523</h3>
               <p className="text-sm text-gray-500 dark:text-gray-400">API Requests Today</p>
             </div>
-            
+
             <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
               <div className="flex justify-between items-start mb-4">
                 <div className="p-3 bg-purple-100 rounded-lg dark:bg-purple-900">
@@ -202,7 +231,7 @@ export default function Dashboard() {
               <h3 className="text-2xl font-bold text-gray-900 dark:text-white">28</h3>
               <p className="text-sm text-gray-500 dark:text-gray-400">Average Qubits Used</p>
             </div>
-            
+
             <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
               <div className="flex justify-between items-start mb-4">
                 <div className="p-3 bg-yellow-100 rounded-lg dark:bg-yellow-900">
@@ -218,9 +247,9 @@ export default function Dashboard() {
               <p className="text-sm text-gray-500 dark:text-gray-400">Monthly Revenue</p>
             </div>
           </div>
-          
+
           <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Recent Results</h2>
-          
+
           <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm rounded-xl border border-gray-200 dark:border-gray-700 mb-8">
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
@@ -329,13 +358,13 @@ export default function Dashboard() {
           </div>
         </div>
       )}
-      
+
       {/* My Published Circuits Section */}
       {activeTab === DashboardTab.MyPublishedCircuits && (
         <div>
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-bold text-gray-900 dark:text-white">My Published Circuits</h2>
-            <Link 
+            <Link
               href="/dashboard/publish-circuit"
               className="btn-primary inline-flex items-center text-sm"
             >
@@ -343,7 +372,7 @@ export default function Dashboard() {
               Publish New Circuit
             </Link>
           </div>
-          
+
           <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm rounded-xl border border-gray-200 dark:border-gray-700 mb-8">
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
@@ -412,24 +441,33 @@ export default function Dashboard() {
           </div>
         </div>
       )}
-      
+
       {/* Jobs Section */}
       {activeTab === DashboardTab.Jobs && (
         <JobManagement />
       )}
-      
+
       {/* APIKeys Tab */}
       {activeTab === DashboardTab.APIKeys && (
-        <ApiKeysTab />
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white">API Keys</h2>
+          <Link
+            href="/dashboard/api-keys"
+            className="btn-primary inline-flex items-center text-sm"
+          >
+            <KeyIcon className="h-5 w-5 mr-2" />
+            Manage API Keys
+          </Link>
+        </div>
       )}
-      
+
       {/* Hardware Usage Section */}
       {activeTab === DashboardTab.HardwareUsage && (
         <div>
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-bold text-gray-900 dark:text-white">Hardware Usage</h2>
           </div>
-          
+
           <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm rounded-xl border border-gray-200 dark:border-gray-700 mb-8">
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
@@ -490,14 +528,14 @@ export default function Dashboard() {
           </div>
         </div>
       )}
-      
+
       {/* Analytics Section */}
       {activeTab === DashboardTab.Analytics && (
         <div>
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-bold text-gray-900 dark:text-white">Analytics</h2>
           </div>
-          
+
           <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm rounded-xl border border-gray-200 dark:border-gray-700 mb-8">
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
@@ -546,14 +584,14 @@ export default function Dashboard() {
           </div>
         </div>
       )}
-      
+
       {/* Settings Section */}
       {activeTab === DashboardTab.Settings && (
         <div>
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-bold text-gray-900 dark:text-white">Settings</h2>
           </div>
-          
+
           <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm rounded-xl border border-gray-200 dark:border-gray-700 mb-8">
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
@@ -596,4 +634,4 @@ export default function Dashboard() {
       )}
     </div>
   );
-} 
+}

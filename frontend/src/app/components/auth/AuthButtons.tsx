@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 /**
- * Authentication buttons component that displays either sign in/sign up buttons 
+ * Authentication buttons component that displays either sign in/sign up buttons
  * or the user profile dropdown depending on the authentication state
  */
 export default function AuthButtons() {
@@ -105,7 +105,18 @@ export default function AuthButtons() {
           <button
             onClick={async () => {
               setIsDropdownOpen(false);
-              await signOut({ callbackUrl: '/' });
+
+              // Clear localStorage
+              if (typeof window !== 'undefined') {
+                localStorage.removeItem('isAuthenticated');
+                localStorage.removeItem('username');
+                localStorage.removeItem('actualUsername');
+                localStorage.removeItem('quantum_hub_auth_status');
+              }
+
+              // Sign out with NextAuth
+              await signOut({ redirect: true, callbackUrl: '/' });
+
               // Force refresh after sign out
               router.refresh();
             }}

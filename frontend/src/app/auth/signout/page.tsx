@@ -21,10 +21,18 @@ export default function SignOut() {
     if (typeof window !== "undefined") {
       localStorage.removeItem("isAuthenticated");
       localStorage.removeItem("username");
+      localStorage.removeItem("actualUsername");
+      localStorage.removeItem("quantum_hub_auth_status");
     }
-    
-    // Use direct navigation for more reliable signout
-    window.location.href = "/";
+
+    try {
+      // Use NextAuth's signOut function with redirect
+      await signOut({ callbackUrl: "/" });
+    } catch (error) {
+      console.error("Error signing out:", error);
+      // Fallback to direct navigation
+      window.location.href = "/";
+    }
   };
 
   return (
