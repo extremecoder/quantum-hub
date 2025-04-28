@@ -28,6 +28,7 @@ services:
     environment:
       - DATABASE_URL=postgresql://quantum_user:quantum_password@postgres:5432/quantum_hub
       - JWT_SECRET_KEY=your-secret-key
+      - SECRET_KEY=5b0c1d6c5fafa8d4224ede60d504bf91e7a8d245cd290d33de52c55d
     command: uvicorn app.main:app --host 0.0.0.0 --port 8010
     working_dir: /app/services/auth_service
     depends_on:
@@ -100,6 +101,30 @@ services:
       timeout: 10s
       retries: 3
 
+  quantum_app_service:
+    build:
+      context: .
+      dockerfile: services/quantum_app_service/Dockerfile
+    ports:
+      - "8005:8003"
+    environment:
+      - DATABASE_URL=postgresql://quantum_user:quantum_password@postgres:5432/quantum_hub
+      - JWT_SECRET_KEY=5b0c1d6c5fafa8d4224ede60d504bf91e7a8d245cd290d33de52c55d
+      - POSTGRES_USER=quantum_user
+      - POSTGRES_PASSWORD=quantum_password
+      - POSTGRES_SERVER=postgres
+      - POSTGRES_DB=quantum_hub
+    command: uvicorn services.quantum_app_service.app.main:app --host 0.0.0.0 --port 8003
+    depends_on:
+      - postgres
+    networks:
+      - quantum-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8003/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
   api_gateway:
     build:
       context: .
@@ -111,6 +136,7 @@ services:
       - PROJECT_SERVICE_URL=http://project_service:8000
       - REGISTRY_SERVICE_URL=http://registry_service:8000
       - MARKETPLACE_SERVICE_URL=http://marketplace_service:8000
+      - QUANTUM_APP_SERVICE_URL=http://quantum_app_service:8003
       - WEB_IDE_SERVICE_URL=http://web_ide_service:8000
       - JWT_SECRET_KEY=your-secret-key
     command: uvicorn main:app --host 0.0.0.0 --port 8010
@@ -120,6 +146,7 @@ services:
       - project_service
       - registry_service
       - marketplace_service
+      - quantum_app_service
       - web_ide_service
     networks:
       - quantum-net

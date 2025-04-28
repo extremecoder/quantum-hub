@@ -9,7 +9,7 @@ from typing import List, Optional
 import uuid
 
 from sqlalchemy import (
-    Boolean, Column, DateTime, ForeignKey, Integer,
+    Boolean, Column, DateTime, Enum, ForeignKey, Integer,
     LargeBinary, String, Text
 )
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB, UUID
@@ -39,11 +39,11 @@ class Project(Base, BaseModel):
         ForeignKey("quantum_app.id"),
         nullable=True
     )
-    repo = Column(String(255), nullable=True)
+    repo = Column(Text, nullable=True)
 
     # Relationships
     user = relationship("User", backref="projects")
-    quantum_app = relationship("QuantumApp", back_populates="projects")
+    quantum_app = relationship("QuantumApp", back_populates="project", uselist=False)
 
 
 class QuantumApp(Base, BaseModel):
@@ -61,20 +61,21 @@ class QuantumApp(Base, BaseModel):
     )
     name = Column(String(100), nullable=False)
     description = Column(Text, nullable=True)
-    type = Column(String(50), nullable=False)
+    # Use String type for compatibility with existing database
+    type = Column(String(50), nullable=False, server_default=AppType.OTHER.value)
     status = Column(ARRAY(String), nullable=False, default=["DRAFT"])
-    visibility = Column(String(20), nullable=False, default=AppVisibility.PRIVATE.value)
+    visibility = Column(String(50), nullable=False, server_default=AppVisibility.PRIVATE.value)
     latest_version_id = Column(
         UUID(as_uuid=True),
         ForeignKey("app_version.id"),
         nullable=True
     )
-    api_url = Column(String(255), nullable=True)
-    documentation_url = Column(String(255), nullable=True)
-    license_type = Column(String(20), default=LicenseType.MIT.value)
-    license_url = Column(String(255), nullable=True)
+    api_url = Column(Text, nullable=True)
+    documentation_url = Column(Text, nullable=True)
+    license_type = Column(String(50), server_default=LicenseType.MIT.value)
+    license_url = Column(Text, nullable=True)
     readme_content = Column(Text, nullable=True)
-    repository_url = Column(String(255), nullable=True)
+    repository_url = Column(Text, nullable=True)
 
     # Registry-specific fields
     is_in_registry = Column(Boolean, default=False)
@@ -89,8 +90,8 @@ class QuantumApp(Base, BaseModel):
         foreign_keys=[latest_version_id],
         post_update=True
     )
-    # Remove backref to avoid circular dependency
-    projects = relationship("Project", back_populates="quantum_app")
+    # One-to-one relationship with Project
+    project = relationship("Project", back_populates="quantum_app", uselist=False)
     # Remove backref to avoid circular dependency with MarketplaceListing
     marketplace_listing = relationship("MarketplaceListing", uselist=False, back_populates="quantum_app")
 
@@ -109,7 +110,7 @@ class AppVersion(Base, BaseModel):
         nullable=False
     )
     version_number = Column(String(20), nullable=False)
-    sdk_used = Column(String(20), nullable=False)
+    sdk_used = Column(String(50), nullable=False, server_default=SDKType.OTHER.value)
     input_schema = Column(JSONB, nullable=True)
     output_schema = Column(JSONB, nullable=True)
     built_on_quantum_sdk_version = Column(String(50), nullable=True)
@@ -117,12 +118,12 @@ class AppVersion(Base, BaseModel):
     preferred_device_id = Column(String(50), nullable=True)
     number_of_qubits = Column(Integer, nullable=True)
     average_execution_time = Column(String(50), nullable=True)
-    source_repo = Column(String(255), nullable=True)
+    source_repo = Column(Text, nullable=True)
     source_commit_hash = Column(String(100), nullable=True)
-    package_path = Column(String(255), nullable=True)
+    package_path = Column(Text, nullable=True)
     package_data = Column(LargeBinary, nullable=True)
     ir_type = Column(String(50), nullable=True)
-    ir_path = Column(String(255), nullable=True)
+    ir_path = Column(Text, nullable=True)
     resource_estimate = Column(JSONB, nullable=True)
     cost_estimate = Column(JSONB, nullable=True)
     benchmark_results = Column(JSONB, nullable=True)
@@ -131,7 +132,7 @@ class AppVersion(Base, BaseModel):
     security_scan_results = Column(JSONB, nullable=True)
     release_notes = Column(Text, nullable=True)
     is_latest = Column(Boolean, default=False)
-    status = Column(String(20), default=VersionStatus.DRAFT.value)
+    status = Column(String(50), server_default=VersionStatus.DRAFT.value)
 
     # Relationships
     quantum_app = relationship(

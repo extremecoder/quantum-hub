@@ -19,7 +19,7 @@ sys.path.append(parent_dir)
 # Import all models to ensure they are registered with SQLAlchemy
 from services.shared.database.models import (
     User, UserProfile, UserApiKey, UserSession,
-    Project, QuantumApp, AppVersion, 
+    Project, QuantumApp, AppVersion,
     MarketplaceListing, Subscription, SubscriptionKey,
     Platform, Device, Job, JobResult
 )
@@ -44,7 +44,7 @@ target_metadata = SQLModel.metadata
 # Get database configuration from environment variables
 DB_USER = os.getenv("POSTGRES_USER", "quantum_user")
 DB_PASSWORD = os.getenv("POSTGRES_PASSWORD", "quantum_password")
-DB_HOST = os.getenv("POSTGRES_HOST", "postgres")
+DB_HOST = os.getenv("POSTGRES_HOST", "localhost")
 DB_PORT = os.getenv("POSTGRES_PORT", "5432")
 DB_NAME = os.getenv("POSTGRES_DB", "quantum_hub")
 DB_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
@@ -97,7 +97,7 @@ def run_migrations_online():
 
     with connectable.connect() as connection:
         context.configure(
-            connection=connection, 
+            connection=connection,
             target_metadata=target_metadata,
             compare_type=True,
             compare_server_default=True,

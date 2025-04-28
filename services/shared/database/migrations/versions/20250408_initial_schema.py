@@ -1,7 +1,7 @@
 """Initial schema
 
 Revision ID: 001
-Revises: 
+Revises:
 Create Date: 2025-04-08 10:15:00.000000
 
 """
@@ -37,7 +37,7 @@ def upgrade():
         sa.UniqueConstraint('username')
     )
     op.create_index(op.f('ix_user_id'), 'user', ['id'], unique=False)
-    
+
     op.create_table(
         'user_profile',
         sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
@@ -54,13 +54,13 @@ def upgrade():
         sa.UniqueConstraint('user_id')
     )
     op.create_index(op.f('ix_user_profile_id'), 'user_profile', ['id'], unique=False)
-    
+
     op.create_table(
         'user_api_key',
         sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column('user_id', postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column('name', sa.String(length=100), nullable=False),
-        sa.Column('value', sa.String(length=255), nullable=False),
+        sa.Column('value', sa.Text(), nullable=False),
         sa.Column('status', sa.Enum('active', 'expired', 'revoked', name='apikeystatus'), nullable=False),
         sa.Column('rate_limit', sa.String(length=50), nullable=True),
         sa.Column('expire_at', sa.DateTime(timezone=True), nullable=True),
@@ -73,7 +73,7 @@ def upgrade():
     )
     op.create_index(op.f('ix_user_api_key_id'), 'user_api_key', ['id'], unique=False)
     op.create_index(op.f('ix_user_api_key_value'), 'user_api_key', ['value'], unique=False)
-    
+
     op.create_table(
         'user_session',
         sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
@@ -91,7 +91,7 @@ def upgrade():
         sa.UniqueConstraint('token')
     )
     op.create_index(op.f('ix_user_session_id'), 'user_session', ['id'], unique=False)
-    
+
     # Platform and device tables
     op.create_table(
         'platform',
@@ -101,14 +101,14 @@ def upgrade():
         sa.Column('description', sa.Text(), nullable=True),
         sa.Column('is_simulator', sa.Boolean(), nullable=True),
         sa.Column('is_available', sa.Boolean(), nullable=True),
-        sa.Column('api_endpoint', sa.String(length=255), nullable=True),
+        sa.Column('api_endpoint', sa.Text(), nullable=True),
         sa.Column('sdk_integration', sa.String(length=100), nullable=True),
         sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
         sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
         sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_platform_id'), 'platform', ['id'], unique=False)
-    
+
     op.create_table(
         'device',
         sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
@@ -128,7 +128,7 @@ def upgrade():
         sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_device_id'), 'device', ['id'], unique=False)
-    
+
     # Application tables
     op.create_table(
         'quantum_app',
@@ -140,12 +140,12 @@ def upgrade():
         sa.Column('status', postgresql.ARRAY(sa.String()), nullable=False),
         sa.Column('visibility', sa.Enum('public', 'private', 'restricted', name='appvisibility'), nullable=False),
         sa.Column('latest_version_id', postgresql.UUID(as_uuid=True), nullable=True),
-        sa.Column('api_url', sa.String(length=255), nullable=True),
-        sa.Column('documentation_url', sa.String(length=255), nullable=True),
+        sa.Column('api_url', sa.Text(), nullable=True),
+        sa.Column('documentation_url', sa.Text(), nullable=True),
         sa.Column('license_type', sa.Enum('mit', 'apache2', 'gpl3', 'bsd', 'proprietary', 'other', name='licensetype'), nullable=True),
-        sa.Column('license_url', sa.String(length=255), nullable=True),
+        sa.Column('license_url', sa.Text(), nullable=True),
         sa.Column('readme_content', sa.Text(), nullable=True),
-        sa.Column('repository_url', sa.String(length=255), nullable=True),
+        sa.Column('repository_url', sa.Text(), nullable=True),
         sa.Column('is_in_registry', sa.Boolean(), nullable=True),
         sa.Column('registry_published_at', sa.DateTime(timezone=True), nullable=True),
         sa.Column('featured_in_registry', sa.Boolean(), nullable=True),
@@ -156,7 +156,7 @@ def upgrade():
         sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_quantum_app_id'), 'quantum_app', ['id'], unique=False)
-    
+
     op.create_table(
         'app_version',
         sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
@@ -170,12 +170,12 @@ def upgrade():
         sa.Column('preferred_device_id', sa.String(length=50), nullable=True),
         sa.Column('number_of_qubits', sa.Integer(), nullable=True),
         sa.Column('average_execution_time', sa.String(length=50), nullable=True),
-        sa.Column('source_repo', sa.String(length=255), nullable=True),
+        sa.Column('source_repo', sa.Text(), nullable=True),
         sa.Column('source_commit_hash', sa.String(length=100), nullable=True),
-        sa.Column('package_path', sa.String(length=255), nullable=True),
+        sa.Column('package_path', sa.Text(), nullable=True),
         sa.Column('package_data', sa.LargeBinary(), nullable=True),
         sa.Column('ir_type', sa.String(length=50), nullable=True),
-        sa.Column('ir_path', sa.String(length=255), nullable=True),
+        sa.Column('ir_path', sa.Text(), nullable=True),
         sa.Column('resource_estimate', postgresql.JSONB(astext_type=sa.Text()), nullable=True),
         sa.Column('cost_estimate', postgresql.JSONB(astext_type=sa.Text()), nullable=True),
         sa.Column('benchmark_results', postgresql.JSONB(astext_type=sa.Text()), nullable=True),
@@ -192,7 +192,7 @@ def upgrade():
     )
     op.create_index(op.f('ix_app_version_id'), 'app_version', ['id'], unique=False)
     op.create_foreign_key('fk_quantum_app_latest_version', 'quantum_app', 'app_version', ['latest_version_id'], ['id'])
-    
+
     op.create_table(
         'project',
         sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
@@ -200,7 +200,7 @@ def upgrade():
         sa.Column('description', sa.Text(), nullable=True),
         sa.Column('user_id', postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column('quantum_app_id', postgresql.UUID(as_uuid=True), nullable=True),
-        sa.Column('repo', sa.String(length=255), nullable=True),
+        sa.Column('repo', sa.Text(), nullable=True),
         sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
         sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
         sa.ForeignKeyConstraint(['quantum_app_id'], ['quantum_app.id']),
@@ -208,12 +208,12 @@ def upgrade():
         sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_project_id'), 'project', ['id'], unique=False)
-    
+
     # Marketplace tables
     op.create_table(
         'marketplace_listing',
         sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
-        sa.Column('quantum_app_id', postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column('quantum_app_id', postgresql.UUID(as_uuid=True), nullable=True),
         sa.Column('listed_by', postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column('price', sa.Numeric(precision=10, scale=2), nullable=False),
         sa.Column('currency', sa.String(length=3), nullable=False),
@@ -222,43 +222,41 @@ def upgrade():
         sa.Column('rating_count', sa.Integer(), nullable=True),
         sa.Column('preview_enabled', sa.Boolean(), nullable=True),
         sa.Column('support_email', sa.String(length=100), nullable=True),
-        sa.Column('support_url', sa.String(length=255), nullable=True),
+        sa.Column('support_url', sa.Text(), nullable=True),
         sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
         sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
         sa.ForeignKeyConstraint(['listed_by'], ['user.id'], ondelete='CASCADE'),
-        sa.ForeignKeyConstraint(['quantum_app_id'], ['quantum_app.id'], ondelete='CASCADE'),
+        sa.ForeignKeyConstraint(['quantum_app_id'], ['quantum_app.id'], ondelete='SET NULL'),
         sa.PrimaryKeyConstraint('id'),
         sa.UniqueConstraint('quantum_app_id')
     )
     op.create_index(op.f('ix_marketplace_listing_id'), 'marketplace_listing', ['id'], unique=False)
-    
+
     op.create_table(
         'subscription',
         sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column('user_id', postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column('quantum_app_id', postgresql.UUID(as_uuid=True), nullable=False),
-        sa.Column('marketplace_listing_id', postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column('subscription_type', sa.Enum('free', 'basic', 'professional', 'enterprise', 'custom', name='subscriptiontype'), nullable=False),
         sa.Column('start_date', sa.DateTime(timezone=True), nullable=False),
         sa.Column('end_date', sa.DateTime(timezone=True), nullable=True),
         sa.Column('status', sa.Enum('active', 'expired', 'cancelled', 'suspended', name='subscriptionstatus'), nullable=True),
-        sa.Column('service_uri', sa.String(length=255), nullable=True),
+        sa.Column('service_uri', sa.Text(), nullable=True),
         sa.Column('rate', sa.Numeric(precision=10, scale=2), nullable=True),
         sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
         sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
-        sa.ForeignKeyConstraint(['marketplace_listing_id'], ['marketplace_listing.id'], ondelete='CASCADE'),
         sa.ForeignKeyConstraint(['quantum_app_id'], ['quantum_app.id'], ondelete='CASCADE'),
         sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
         sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_subscription_id'), 'subscription', ['id'], unique=False)
-    
+
     op.create_table(
         'subscription_key',
         sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column('subscription_id', postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column('name', sa.String(length=100), nullable=False),
-        sa.Column('value', sa.String(length=255), nullable=False),
+        sa.Column('value', sa.Text(), nullable=False),
         sa.Column('type', sa.Enum('free', 'basic', 'professional', 'enterprise', 'custom', name='subscriptiontype'), nullable=False),
         sa.Column('remaining_usage_count', sa.Integer(), nullable=True),
         sa.Column('rate_limit', sa.String(length=50), nullable=True),
@@ -271,7 +269,7 @@ def upgrade():
         sa.UniqueConstraint('value')
     )
     op.create_index(op.f('ix_subscription_key_id'), 'subscription_key', ['id'], unique=False)
-    
+
     # Execution tables
     op.create_table(
         'job',
@@ -291,7 +289,14 @@ def upgrade():
         sa.Column('started_at', sa.DateTime(timezone=True), nullable=True),
         sa.Column('completed_at', sa.DateTime(timezone=True), nullable=True),
         sa.Column('cost', sa.Float(), nullable=True),
+        sa.Column('estimated_cost', sa.Float(), nullable=True),
+        sa.Column('actual_cost', sa.Float(), nullable=True),
         sa.Column('billing_reference', sa.String(length=100), nullable=True),
+        sa.Column('executor_job_id', sa.String(length=100), nullable=True),
+        sa.Column('platform_provider_job_id', sa.String(length=100), nullable=True),
+        sa.Column('platform_provider_job_status', sa.String(length=50), nullable=True),
+        sa.Column('hyperparameter_shots', sa.Integer(), nullable=True),
+        sa.Column('execution_mode', sa.String(length=50), nullable=True),
         sa.Column('error_message', sa.Text(), nullable=True),
         sa.Column('execution_log', sa.Text(), nullable=True),
         sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
@@ -303,17 +308,20 @@ def upgrade():
         sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_job_id'), 'job', ['id'], unique=False)
-    
+
     op.create_table(
         'job_result',
         sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column('job_id', postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column('result_data', postgresql.JSONB(astext_type=sa.Text()), nullable=False),
         sa.Column('raw_data', postgresql.JSONB(astext_type=sa.Text()), nullable=True),
+        sa.Column('status', sa.String(length=50), nullable=True),
+        sa.Column('counts', postgresql.JSONB(astext_type=sa.Text()), nullable=True),
         sa.Column('execution_time_ms', sa.Integer(), nullable=True),
         sa.Column('shots', sa.Integer(), nullable=True),
         sa.Column('success_rate', sa.Float(), nullable=True),
         sa.Column('fidelity', sa.Float(), nullable=True),
+        sa.Column('actual_cost', sa.Float(), nullable=True),
         sa.Column('visualization_data', postgresql.JSONB(astext_type=sa.Text()), nullable=True),
         sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
         sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
@@ -332,7 +340,7 @@ def downgrade():
     op.drop_table('subscription')
     op.drop_table('marketplace_listing')
     op.drop_table('project')
-    
+
     # Remove foreign key constraint before dropping app_version
     op.drop_constraint('fk_quantum_app_latest_version', 'quantum_app', type_='foreignkey')
     op.drop_table('app_version')
@@ -343,7 +351,7 @@ def downgrade():
     op.drop_table('user_api_key')
     op.drop_table('user_profile')
     op.drop_table('user')
-    
+
     # Drop enum types
     op.execute("DROP TYPE IF EXISTS apikeystatus")
     op.execute("DROP TYPE IF EXISTS apptype")

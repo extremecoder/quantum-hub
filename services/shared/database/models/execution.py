@@ -32,7 +32,7 @@ class Platform(Base, BaseModel):
     description = Column(Text, nullable=True)
     is_simulator = Column(Boolean, default=False)
     is_available = Column(Boolean, default=True)
-    api_endpoint = Column(String(255), nullable=True)
+    api_endpoint = Column(Text, nullable=True)
     sdk_integration = Column(String(100), nullable=True)
 
     # Relationships
@@ -111,7 +111,14 @@ class Job(Base, BaseModel):
     started_at = Column(DateTime(timezone=True), nullable=True)
     completed_at = Column(DateTime(timezone=True), nullable=True)
     cost = Column(Float, nullable=True)
+    estimated_cost = Column(Float, nullable=True)
+    actual_cost = Column(Float, nullable=True)
     billing_reference = Column(String(100), nullable=True)
+    executor_job_id = Column(String(100), nullable=True)
+    platform_provider_job_id = Column(String(100), nullable=True)
+    platform_provider_job_status = Column(String(50), nullable=True)
+    hyperparameter_shots = Column(Integer, nullable=True)
+    execution_mode = Column(String(50), nullable=True)
     error_message = Column(Text, nullable=True)
     execution_log = Column(Text, nullable=True)
 
@@ -140,10 +147,13 @@ class JobResult(Base, BaseModel):
     )
     result_data = Column(JSONB, nullable=False)
     raw_data = Column(JSONB, nullable=True)
+    status = Column(String(50), nullable=True)
+    counts = Column(JSONB, nullable=True)
     execution_time_ms = Column(Integer, nullable=True)
     shots = Column(Integer, nullable=True)
     success_rate = Column(Float, nullable=True)
     fidelity = Column(Float, nullable=True)
+    actual_cost = Column(Float, nullable=True)
     visualization_data = Column(JSONB, nullable=True)
 
     # Relationships

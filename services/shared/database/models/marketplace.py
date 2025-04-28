@@ -32,9 +32,9 @@ class MarketplaceListing(Base, BaseModel):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     quantum_app_id = Column(
         UUID(as_uuid=True),
-        ForeignKey("quantum_app.id", ondelete="CASCADE"),
+        ForeignKey("quantum_app.id", ondelete="SET NULL"),
         unique=True,
-        nullable=False
+        nullable=True
     )
     listed_by = Column(
         UUID(as_uuid=True),
@@ -54,13 +54,12 @@ class MarketplaceListing(Base, BaseModel):
     rating_count = Column(Integer, default=0)
     preview_enabled = Column(Boolean, default=False)
     support_email = Column(String(100), nullable=True)
-    support_url = Column(String(255), nullable=True)
+    support_url = Column(Text, nullable=True)
 
     # Relationships
     lister = relationship("User", backref="marketplace_listings")
-    quantum_app = relationship("QuantumApp", back_populates="marketplace_listing")
-    # Remove backref to avoid circular dependency with Subscription
-    subscriptions = relationship("Subscription", back_populates="marketplace_listing")
+    quantum_app = relationship("QuantumApp", back_populates="marketplace_listing", uselist=False)
+    # Removed subscriptions relationship as subscription doesn't need to track which listing it came from
 
 
 class Subscription(Base, BaseModel):
@@ -82,11 +81,7 @@ class Subscription(Base, BaseModel):
         ForeignKey("quantum_app.id", ondelete="CASCADE"),
         nullable=False
     )
-    marketplace_listing_id = Column(
-        UUID(as_uuid=True),
-        ForeignKey("marketplace_listing.id", ondelete="CASCADE"),
-        nullable=False
-    )
+    # Removed marketplace_listing_id as subscription doesn't need to track which listing it came from
     subscription_type = Column(
         String(20),
         nullable=False
@@ -97,7 +92,7 @@ class Subscription(Base, BaseModel):
         String(20),
         default=SubscriptionStatus.ACTIVE.value
     )
-    service_uri = Column(String(255), nullable=True)
+    service_uri = Column(Text, nullable=True)
     rate = Column(
         Numeric(precision=10, scale=2),
         nullable=True
@@ -105,8 +100,8 @@ class Subscription(Base, BaseModel):
 
     # Relationships
     user = relationship("User", backref="subscriptions")
-    quantum_app = relationship("QuantumApp")
-    marketplace_listing = relationship("MarketplaceListing", back_populates="subscriptions")
+    quantum_app = relationship("QuantumApp", foreign_keys=[quantum_app_id])
+    # Removed marketplace_listing relationship as subscription doesn't need to track which listing it came from
     # Remove backref to avoid circular dependency with SubscriptionKey
     subscription_keys = relationship("SubscriptionKey", back_populates="subscription")
 
@@ -126,7 +121,7 @@ class SubscriptionKey(Base, BaseModel):
         nullable=False
     )
     name = Column(String(100), nullable=False)
-    value = Column(String(255), unique=True, nullable=False)
+    value = Column(Text, unique=True, nullable=False)
     type = Column(String(20), nullable=False)
     remaining_usage_count = Column(Integer, nullable=True)
     rate_limit = Column(String(50), nullable=True)

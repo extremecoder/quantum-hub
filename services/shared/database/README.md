@@ -98,6 +98,11 @@ For detailed information about each model and its fields, see the model definiti
    - Test the migration in both directions (up/down)
    - Document breaking changes
 
+6. **URL and Long Text Fields**: All URL fields and fields that might contain long text use the `Text` type instead of `String(255)` to avoid truncation:
+   - This includes API endpoints, repository URLs, documentation URLs, and API keys
+   - The `Text` type in PostgreSQL can store strings of unlimited length
+   - Use `Text` type for any field that might contain URLs, long descriptions, or other potentially long strings
+
 ## Backup and Recovery
 
 For local development, you can create database backups using:
