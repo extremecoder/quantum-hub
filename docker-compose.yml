@@ -110,10 +110,12 @@ services:
     environment:
       - DATABASE_URL=postgresql://quantum_user:quantum_password@postgres:5432/quantum_hub
       - JWT_SECRET_KEY=5b0c1d6c5fafa8d4224ede60d504bf91e7a8d245cd290d33de52c55d
+      - SECRET_KEY=5b0c1d6c5fafa8d4224ede60d504bf91e7a8d245cd290d33de52c55d
       - POSTGRES_USER=quantum_user
       - POSTGRES_PASSWORD=quantum_password
       - POSTGRES_SERVER=postgres
       - POSTGRES_DB=quantum_hub
+      - BACKEND_CORS_ORIGINS=["http://localhost:3000","http://localhost:8000","http://localhost"]
     command: uvicorn services.quantum_app_service.app.main:app --host 0.0.0.0 --port 8003
     depends_on:
       - postgres

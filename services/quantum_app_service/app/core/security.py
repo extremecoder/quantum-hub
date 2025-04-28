@@ -34,7 +34,17 @@ async def get_current_user_id(
     try:
         # Decode token
         token = credentials.credentials
-        payload = decode_token(token, secret_key=settings.JWT_SECRET_KEY)
+
+        # Try with JWT_SECRET_KEY first
+        try:
+            payload = decode_token(token, secret_key=settings.JWT_SECRET_KEY)
+        except Exception:
+            # Fall back to SECRET_KEY if available
+            if hasattr(settings, 'SECRET_KEY'):
+                payload = decode_token(token, secret_key=settings.SECRET_KEY)
+            else:
+                # Re-raise the original exception if SECRET_KEY is not available
+                raise
 
         # Get user ID from token
         user_id = get_token_subject(payload)

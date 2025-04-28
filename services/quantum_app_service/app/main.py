@@ -57,14 +57,15 @@ app = FastAPI(
     swagger_ui_parameters={"defaultModelsExpandDepth": -1}
 )
 
-# Add CORS middleware
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=settings.BACKEND_CORS_ORIGINS,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# Set up CORS middleware
+if settings.BACKEND_CORS_ORIGINS:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=[str(origin) for origin in settings.BACKEND_CORS_ORIGINS],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
 # Add middleware for request ID and logging
 @app.middleware("http")
@@ -72,10 +73,10 @@ async def add_request_id_and_log(request: Request, call_next):
     """Add request ID to each request and log request/response."""
     # Generate request ID
     request_id = f"req-{time.time()}-{id(request)}"
-    
+
     # Set request ID in context
     set_request_id(request_id)
-    
+
     # Log request
     logger.info(f"Request: {request.method} {request.url.path}", extra={
         "request_id": request_id,
@@ -83,29 +84,30 @@ async def add_request_id_and_log(request: Request, call_next):
         "path": request.url.path,
         "query": str(request.query_params),
     })
-    
+
     # Process request
     start_time = time.time()
     response = await call_next(request)
     process_time = time.time() - start_time
-    
+
     # Log response
     logger.info(f"Response: {response.status_code} ({process_time:.4f}s)", extra={
         "request_id": request_id,
         "status_code": response.status_code,
         "process_time": process_time,
     })
-    
+
     # Add request ID to response headers
     response.headers["X-Request-ID"] = request_id
-    
+
     return response
 
 # Include API router
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
-# Health check endpoint
+# Health check endpoints - available at both root and API prefix
 @app.get("/health")
+@app.get(f"{settings.API_V1_STR}/health")
 async def health_check():
     """Health check endpoint for service monitoring."""
     return JSONResponse(

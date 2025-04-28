@@ -17,7 +17,9 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "Quantum Hub Quantum App Service"
 
     # CORS settings
-    BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = []
+    BACKEND_CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://127.0.0.1:3000",
+                                      "http://localhost:8001", "http://127.0.0.1:8001",
+                                      "*"]
 
     @field_validator("BACKEND_CORS_ORIGINS", mode="before")
     def assemble_cors_origins(cls, v: Union[str, List[str]]) -> Union[List[str], str]:
@@ -52,6 +54,7 @@ class Settings(BaseSettings):
 
     # JWT settings
     JWT_SECRET_KEY: str = "your-secret-key"
+    SECRET_KEY: str = "5b0c1d6c5fafa8d4224ede60d504bf91e7a8d245cd290d33de52c55d"  # Same as auth_service
     JWT_ALGORITHM: str = "HS256"
     JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 

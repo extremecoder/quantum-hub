@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual Upload Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            border: 1px solid #ccc;
+            padding: 20px;
+            border-radius: 5px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #4a5568;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #2d3748;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            min-height: 100px;
+        }
+        .success {
+            color: green;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>Manual Upload Test for Quantum App Service</h1>
+    <div class="container">
+        <div class="form-group">
+            <label for="file">Select a zip file to upload:</label>
+            <input type="file" id="file" accept=".zip" />
+        </div>
+        <button id="uploadBtn">Upload</button>
+        <div id="result">
+            <p>Results will appear here...</p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('uploadBtn').addEventListener('click', async () => {
+            const fileInput = document.getElementById('file');
+            const resultDiv = document.getElementById('result');
+            
+            if (!fileInput.files || fileInput.files.length === 0) {
+                resultDiv.innerHTML = '<p class="error">Please select a file first.</p>';
+                return;
+            }
+            
+            const file = fileInput.files[0];
+            if (!file.name.endsWith('.zip')) {
+                resultDiv.innerHTML = '<p class="error">Please select a zip file.</p>';
+                return;
+            }
+            
+            resultDiv.innerHTML = '<p>Uploading...</p>';
+            
+            const formData = new FormData();
+            formData.append('package_file', file);
+            
+            try {
+                const response = await fetch('http://localhost:8005/api/v1/quantum-apps/upload', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        // Add any required headers here
+                        'Authorization': 'Bearer YOUR_TOKEN_HERE' // Replace with actual token
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <p class="success">Upload successful!</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <p class="error">Upload failed!</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <p class="error">Error: ${error.message}</p>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>
